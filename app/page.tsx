@@ -27,7 +27,7 @@ export default function Home() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32 relative z-10">
+      <section className="container mx-auto px-4 pt-8 md:pt-16 pb-20 md:pb-28 relative z-10">
         <div className="mx-auto max-w-[90%] text-center">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm px-5 py-2 text-sm text-foreground shadow-lg">
             <span className="relative flex h-2 w-2">
@@ -110,84 +110,188 @@ export default function Home() {
               </h3>
               <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
                 Choose how you interact with your wallet. Type naturally in chat
-                or speak your commands. No complex interfaces, no confusion—just
-                simple conversations with your AI wallet assistant.
+                or speak your commands. No complex interfaces, no confusion,
+                just simple conversations with your AI wallet assistant.
               </p>
             </div>
-            <div className="rounded-2xl bg-linear-to-r from-primary/10 to-primary/5 p-5 border border-primary/10">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
-                  <Sparkles className="h-4 w-4 text-primary" />
+
+            {/* Example Commands */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20 shrink-0">
+                  <Sparkles className="h-4 w-4 text-green-500" />
                 </div>
-                <span className="text-sm font-semibold">
-                  AI understands your intent
+                <span className="text-sm">
+                  &quot;Send 50 USDC to Alice&quot;
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                &quot;Split $100 between Alice and Bob&quot; → Automatically
-                creates two transactions
-              </p>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 shrink-0">
+                  <Sparkles className="h-4 w-4 text-blue-500" />
+                </div>
+                <span className="text-sm">&quot;Check my balance&quot;</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 shrink-0">
+                  <Sparkles className="h-4 w-4 text-purple-500" />
+                </div>
+                <span className="text-sm">&quot;Save this address&quot;</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/20 shrink-0">
+                  <Sparkles className="h-4 w-4 text-orange-500" />
+                </div>
+                <span className="text-sm">
+                  &quot;Show recent activity&quot;
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-linear-to-r from-primary/10 to-primary/5 p-5 border border-primary/10">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 shrink-0">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold block">
+                    AI understands your intent
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Natural language processing makes crypto simple
+                  </span>
+                </div>
+              </div>
             </div>
           </Card>
 
           {/* Right column - Row 1: Privy Security */}
-          <Card className="glass-card gradient-border border-0 p-6 flex flex-col rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <Shield className="h-6 w-6 text-primary" />
+          <Card className="glass-card gradient-border border-0 p-5 flex flex-col justify-between rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div>
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                <Shield className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="mb-1.5 text-lg font-bold">Privy Security</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Enterprise-grade security powered by Privy. Your keys stay safe
+                with biometric authentication, secure enclave key management,
+                and multi-factor protection.
+              </p>
             </div>
-            <h3 className="mb-2 text-xl font-bold">Privy Security</h3>
-            <p className="text-muted-foreground flex-1 text-sm leading-relaxed">
-              Enterprise-grade security powered by Privy. Biometric auth, secure
-              key management, and 2FA protection.
-            </p>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Biometric
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                2FA
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Encrypted
+              </span>
+            </div>
           </Card>
 
           {/* Right column - Row 2: Mobile First */}
-          <Card className="glass-card gradient-border border-0 p-6 flex flex-col rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <Smartphone className="h-6 w-6 text-primary" />
+          <Card className="glass-card gradient-border border-0 p-5 flex flex-col justify-between rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div>
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                <Smartphone className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="mb-1.5 text-lg font-bold">Mobile First</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Designed from the ground up for your smartphone. Manage your
+                crypto portfolio on-the-go with a beautiful, intuitive native
+                experience.
+              </p>
             </div>
-            <h3 className="mb-2 text-xl font-bold">Mobile First</h3>
-            <p className="text-muted-foreground flex-1 text-sm leading-relaxed">
-              Designed for your smartphone. Manage crypto on-the-go with an
-              intuitive experience.
-            </p>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                iOS
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Android
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Native
+              </span>
+            </div>
           </Card>
 
           {/* Bottom row - Col 1: Universal Access */}
-          <Card className="glass-card gradient-border border-0 p-6 flex flex-col rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <Globe className="h-6 w-6 text-primary" />
+          <Card className="glass-card gradient-border border-0 p-5 flex flex-col justify-between rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div>
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                <Globe className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="mb-1.5 text-lg font-bold">Universal Access</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Financial empowerment for anyone, anywhere in the world. No bank
+                account needed—just your phone and crypto in your pocket, always
+                ready.
+              </p>
             </div>
-            <h3 className="mb-2 text-xl font-bold">Universal Access</h3>
-            <p className="text-muted-foreground flex-1 text-sm leading-relaxed">
-              Financial empowerment for anyone, anywhere. Crypto in your pocket,
-              always ready.
-            </p>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Global
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                24/7
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Borderless
+              </span>
+            </div>
           </Card>
 
           {/* Bottom row - Col 2: Powered by Move on Movement */}
-          <Card className="glass-card gradient-border border-0 p-6 flex flex-col rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <Zap className="h-6 w-6 text-primary" />
+          <Card className="glass-card gradient-border border-0 p-5 flex flex-col justify-between rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div>
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="mb-1.5 text-lg font-bold">Powered by Move</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Built with MoveVM on Movement Network. Experience secure, fast
+                transactions powered by cutting-edge blockchain infrastructure
+                and parallel execution.
+              </p>
             </div>
-            <h3 className="mb-2 text-xl font-bold">Powered by Move</h3>
-            <p className="text-muted-foreground flex-1 text-sm leading-relaxed">
-              Built with MoveVM on Movement Network. Secure, fast transactions
-              with cutting-edge infrastructure.
-            </p>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                MoveVM
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                L2
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Scalable
+              </span>
+            </div>
           </Card>
 
-          {/* Bottom row - Col 3: Lightning Fast (intersection of column and row) */}
-          <Card className="glass-card gradient-border border-0 p-6 flex flex-col rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
-              <TrendingUp className="h-6 w-6 text-primary" />
+          {/* Bottom row - Col 3: Lightning Fast */}
+          <Card className="glass-card gradient-border border-0 p-5 flex flex-col justify-between rounded-2xl group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div>
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl icon-gradient border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="mb-1.5 text-lg font-bold">Lightning Fast</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Instant transactions with Movement&apos;s high-performance
+                blockchain. Sub-second finality means your transfers complete
+                before you can blink.
+              </p>
             </div>
-            <h3 className="mb-2 text-xl font-bold">Lightning Fast</h3>
-            <p className="text-muted-foreground flex-1 text-sm leading-relaxed">
-              Instant transactions with Movement&apos;s high-performance
-              blockchain infrastructure.
-            </p>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                &lt;1s
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Low fees
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                Instant
+              </span>
+            </div>
           </Card>
         </div>
       </section>
