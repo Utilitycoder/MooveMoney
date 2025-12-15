@@ -1,25 +1,80 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageSquare, Mic, Zap, Shield, Send } from "lucide-react";
+import {
+  MessageSquare,
+  Mic,
+  Send,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Wallet,
+  Bookmark,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const EXAMPLE_COMMANDS = [
   "Send 50 USDC to Alice",
-  "Swap 100 MOVE for USDC",
   "Check my balance",
   "Send 0.5 ETH to bob.move",
-  "What's the price of MOVE?",
+  "Save alice.move to contacts",
+  "Show my MOVE balance",
 ];
+
+// Sample transactions for the live feed
+const SAMPLE_TRANSACTIONS = [
+  {
+    type: "received",
+    amount: "125 USDC",
+    from: "sarah.move",
+    time: "Just now",
+  },
+  { type: "sent", amount: "50 MOVE", to: "alex.move", time: "2s ago" },
+  {
+    type: "balance",
+    amount: "2,450 MOVE",
+    description: "Balance checked",
+    time: "5s ago",
+  },
+  { type: "received", amount: "0.5 ETH", from: "mike.move", time: "8s ago" },
+  { type: "sent", amount: "75 USDC", to: "emma.move", time: "12s ago" },
+  {
+    type: "saved",
+    address: "emma.move",
+    description: "Address saved",
+    time: "15s ago",
+  },
+  { type: "received", amount: "300 MOVE", from: "david.move", time: "18s ago" },
+  { type: "sent", amount: "1.2 ETH", to: "lisa.move", time: "22s ago" },
+  { type: "received", amount: "88 USDC", from: "john.move", time: "25s ago" },
+  {
+    type: "balance",
+    amount: "1,200 USDC",
+    description: "Balance checked",
+    time: "30s ago",
+  },
+];
+
+interface Transaction {
+  id: number;
+  type: string;
+  amount?: string;
+  from?: string;
+  to?: string;
+  address?: string;
+  description?: string;
+  time: string;
+  isNew?: boolean;
+}
 
 export function HeroDemo() {
   const [inputValue, setInputValue] = useState("");
   const [placeholder, setPlaceholder] = useState(EXAMPLE_COMMANDS[0]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showSteps, setShowSteps] = useState({ step1: false, step2: false });
   const [activeIcon, setActiveIcon] = useState<"chat" | "voice" | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [txIdCounter, setTxIdCounter] = useState(0);
 
   // Rotate placeholder text
   useEffect(() => {
@@ -32,20 +87,76 @@ export function HeroDemo() {
     return () => clearInterval(interval);
   }, []);
 
+  // Initialize transactions
+  useEffect(() => {
+    const initialTxs = SAMPLE_TRANSACTIONS.slice(0, 3).map((tx, i) => ({
+      ...tx,
+      id: i,
+      isNew: false,
+    }));
+    setTransactions(initialTxs);
+    setTxIdCounter(3);
+  }, []);
+
+  // Add new transaction periodically
+  const addNewTransaction = useCallback(() => {
+    const randomTx =
+      SAMPLE_TRANSACTIONS[
+        Math.floor(Math.random() * SAMPLE_TRANSACTIONS.length)
+      ];
+    const newTx: Transaction = {
+      ...randomTx,
+      id: txIdCounter,
+      time: "Just now",
+      isNew: true,
+    };
+
+    setTransactions((prev) => {
+      const updated = [newTx, ...prev.slice(0, 4)].map((tx, i) => ({
+        ...tx,
+        isNew: i === 0,
+        time:
+          i === 0
+            ? "Just now"
+            : i === 1
+            ? "3s ago"
+            : i === 2
+            ? "8s ago"
+            : i === 3
+            ? "15s ago"
+            : "25s ago",
+      }));
+      return updated;
+    });
+
+    setTxIdCounter((prev) => prev + 1);
+
+    // Remove "new" highlight after animation
+    setTimeout(() => {
+      setTransactions((prev) => prev.map((tx) => ({ ...tx, isNew: false })));
+    }, 1000);
+  }, [txIdCounter]);
+
+  // Periodically add new transactions
+  useEffect(() => {
+    const interval = setInterval(() => {
+      addNewTransaction();
+    }, 4000); // New transaction every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [addNewTransaction]);
+
   // Handle submission
   const handleSubmit = () => {
     if (!inputValue.trim() && !isRecording) return;
 
     setIsProcessing(true);
-    setShowSteps({ step1: false, step2: false });
 
-    // Simulate processing steps
-    setTimeout(() => setShowSteps((s) => ({ ...s, step1: true })), 800);
-    setTimeout(() => setShowSteps((s) => ({ ...s, step2: true })), 1500);
+    // Simulate processing
     setTimeout(() => {
       setIsProcessing(false);
       setInputValue("");
-    }, 2500);
+    }, 1500);
   };
 
   // Handle voice recording simulation
@@ -71,7 +182,7 @@ export function HeroDemo() {
   return (
     <Card className="overflow-hidden glass-card gradient-border border-0 p-6 md:p-8 rounded-3xl">
       {/* Input Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-border/50 pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pb-4">
         <div className="flex gap-3">
           {/* Chat Icon */}
           <button
@@ -196,91 +307,88 @@ export function HeroDemo() {
         </div>
       </div>
 
-      {/* Transaction Steps */}
-      <div className="mt-6 space-y-3">
-        {/* Step 1: Transaction Prepared */}
-        <div
-          className={cn(
-            "flex items-center gap-4 rounded-2xl p-5 border transition-all duration-500",
-            showSteps.step1
-              ? "bg-linear-to-r from-primary/10 to-primary/5 border-primary/20 opacity-100 translate-x-0"
-              : "bg-muted/30 border-border/50 opacity-50"
-          )}
-        >
-          <div
-            className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-500",
-              showSteps.step1
-                ? "bg-primary/20 scale-100"
-                : "bg-muted/50 scale-90"
-            )}
-          >
-            <Zap
+      {/* Live Transaction Feed */}
+      <div className="mt-4">
+        <div className="space-y-2">
+          {transactions.map((tx) => (
+            <div
+              key={tx.id}
               className={cn(
-                "h-5 w-5 transition-colors duration-500",
-                showSteps.step1 ? "text-primary" : "text-muted-foreground"
+                "flex items-center gap-3 p-3 rounded-xl border bg-muted/30 transition-colors duration-300",
+                tx.isNew ? "border-primary/40" : "border-border/50"
               )}
-            />
-          </div>
-          <div className="flex-1">
-            <div className="text-sm font-semibold">Transaction Prepared</div>
-            <div className="text-xs text-muted-foreground">
-              {inputValue || "50 USDC"} →{" "}
-              {inputValue.includes("bob") ? "bob.move" : "alice.move"}
-            </div>
-          </div>
-          <div
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-500",
-              showSteps.step1
-                ? "bg-green-500/20 text-green-500 scale-100"
-                : "bg-muted/50 text-muted-foreground scale-75"
-            )}
-          >
-            {showSteps.step1 ? "✓" : "○"}
-          </div>
-        </div>
+            >
+              {/* Transaction Icon */}
+              <div
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-xl shrink-0 transition-all duration-300",
+                  tx.type === "received"
+                    ? "bg-green-500/20"
+                    : tx.type === "sent"
+                    ? "bg-blue-500/20"
+                    : tx.type === "balance"
+                    ? "bg-primary/20"
+                    : "bg-orange-500/20"
+                )}
+              >
+                {tx.type === "received" ? (
+                  <ArrowDownLeft className="h-4 w-4 text-green-500" />
+                ) : tx.type === "sent" ? (
+                  <ArrowUpRight className="h-4 w-4 text-blue-500" />
+                ) : tx.type === "balance" ? (
+                  <Wallet className="h-4 w-4 text-primary" />
+                ) : (
+                  <Bookmark className="h-4 w-4 text-orange-500" />
+                )}
+              </div>
 
-        {/* Step 2: Security Check */}
-        <div
-          className={cn(
-            "flex items-center gap-4 rounded-2xl p-5 border transition-all duration-500",
-            showSteps.step2
-              ? "bg-linear-to-r from-primary/10 to-primary/5 border-primary/20 opacity-100 translate-x-0"
-              : "bg-muted/30 border-border/50 opacity-50"
-          )}
-        >
-          <div
-            className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-500",
-              showSteps.step2
-                ? "bg-primary/20 scale-100"
-                : "bg-muted/50 scale-90"
-            )}
-          >
-            <Shield
-              className={cn(
-                "h-5 w-5 transition-colors duration-500",
-                showSteps.step2 ? "text-primary" : "text-muted-foreground"
+              {/* Transaction Details */}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">
+                  {tx.type === "received" && (
+                    <>
+                      Received{" "}
+                      <span className="text-green-500">{tx.amount}</span>
+                    </>
+                  )}
+                  {tx.type === "sent" && (
+                    <>
+                      Sent <span className="text-blue-500">{tx.amount}</span>
+                    </>
+                  )}
+                  {tx.type === "balance" && (
+                    <>
+                      Balance: <span className="text-primary">{tx.amount}</span>
+                    </>
+                  )}
+                  {tx.type === "saved" && (
+                    <>
+                      Saved{" "}
+                      <span className="text-orange-500">{tx.address}</span>
+                    </>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {tx.type === "received" && `From ${tx.from}`}
+                  {tx.type === "sent" && `To ${tx.to}`}
+                  {tx.type === "balance" && tx.description}
+                  {tx.type === "saved" && "Added to contacts"}
+                </div>
+              </div>
+
+              {/* Time */}
+              <div className="text-xs text-muted-foreground whitespace-nowrap">
+                {tx.time}
+              </div>
+
+              {/* New indicator */}
+              {tx.isNew && (
+                <span className="flex items-center justify-center h-5 w-5 text-[9px] font-bold bg-primary text-primary-foreground rounded-full animate-pulse">
+                  ●
+                </span>
               )}
-            />
-          </div>
-          <div className="flex-1">
-            <div className="text-sm font-semibold">Security Check</div>
-            <div className="text-xs text-muted-foreground">
-              Verified by Privy
             </div>
-          </div>
-          <div
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-500",
-              showSteps.step2
-                ? "bg-green-500/20 text-green-500 scale-100"
-                : "bg-muted/50 text-muted-foreground scale-75"
-            )}
-          >
-            {showSteps.step2 ? "✓" : "○"}
-          </div>
+          ))}
         </div>
       </div>
 
