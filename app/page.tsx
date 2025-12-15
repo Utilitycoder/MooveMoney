@@ -28,7 +28,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 md:py-32 relative z-10">
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-[90%] text-center">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm px-5 py-2 text-sm text-foreground shadow-lg">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
@@ -42,7 +42,7 @@ export default function Home() {
             <span className="gradient-text">Powered by AI.</span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
+          <p className="mx-auto mb-10 max-w-3xl text-pretty text-lg text-muted-foreground md:text-xl">
             The AI-powered mobile wallet that lets you send, receive, and
             execute on-chain actions using simple chat or voice commands. Built
             on Movement, secured by Privy.
