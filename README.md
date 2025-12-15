@@ -1,22 +1,5 @@
 # MooveMoney
 
-<div align="center">
-  <img src="public/icon.svg" alt="MooveMoney Logo" width="80" height="80" />
-  
-  **Your crypto wallet in your pocket. Powered by AI.**
-
-  [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-  [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-  
-  [Live Demo](#) · [Join Waitlist](#) · [Report Bug](https://github.com/your-repo/issues)
-</div>
-
----
-
-## 📖 About
-
 MooveMoney is an AI-powered mobile wallet that lets you send, receive, and execute on-chain actions using simple chat or voice commands. Built on **Movement Network** and secured by **Privy**.
 
 This repository contains the landing page for MooveMoney, featuring a modern, responsive design with interactive elements and smooth animations.
