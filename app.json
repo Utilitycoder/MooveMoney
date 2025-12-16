@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.piftech.moovemoney"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +20,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.piftech.moovemoney"
+    },
+    "extra": {
+      "privyAppId": "cmj8uin8900rejm0dlmvgywdr",
+      "privyClientId": "client-WY6U5EvAwSA31VMpHM1fK2KSqRnmF5tfhA26sWQyPPab1"
     },
     "web": {
       "output": "static",
@@ -38,7 +44,9 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
