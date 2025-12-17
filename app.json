@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.piftech.moovemoney"
+      "bundleIdentifier": "com.pragmaticaweds.moovemoney"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +21,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.piftech.moovemoney"
+      "package": "com.pragmaticaweds.moovemoney"
     },
     "extra": {
       "privyAppId": "cmj8uin8900rejm0dlmvgywdr",
