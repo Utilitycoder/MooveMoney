@@ -1,6 +1,9 @@
-import { LoginWithOAuthInput, useLoginWithOAuth } from "@privy-io/expo";
+import { useLoginWithOAuth } from "@privy-io/expo";
+import { OAuthProviderID } from "@privy-io/js-sdk-core";
 import React, { useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
+
+const OAUTH_PROVIDERS: OAuthProviderID[] = ["google"];
 
 const LoginPage = () => {
   const [error, setError] = useState("");
@@ -15,14 +18,12 @@ const LoginPage = () => {
   return (
     <View>
       <Text>This is the LoginPage</Text>
-      {["google"].map((provider) => (
+      {OAUTH_PROVIDERS.map((provider) => (
         <View key={provider}>
           <Button
             title={`Login with ${provider}`}
             disabled={oauth.state.status === "loading"}
-            onPress={() =>
-              oauth.login({ provider } as unknown as LoginWithOAuthInput)
-            }
+            onPress={() => oauth.login({ provider })}
           />
         </View>
       ))}
