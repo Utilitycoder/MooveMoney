@@ -1,6 +1,6 @@
 import HomePage from "@/Components/HomePage";
-import LoginPage from "@/Components/LoginPage";
 import { usePrivy } from "@privy-io/expo";
+import RootNav from "./(app)/_layout";
 
 export default function Index() {
   const { user } = usePrivy();
@@ -15,6 +15,6 @@ export default function Index() {
     //   return
     // </View>
 
-    !user ? <LoginPage /> : <HomePage />
+    !user ? <RootNav /> : <HomePage />
   );
 }

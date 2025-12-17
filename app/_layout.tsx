@@ -1,6 +1,7 @@
 import { PrivyProvider } from "@privy-io/expo";
 import Constants from "expo-constants";
-import { Stack } from "expo-router";
+import { Slot } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   return (
@@ -8,7 +9,9 @@ export default function RootLayout() {
       appId={Constants.expoConfig?.extra?.privyAppId}
       clientId={Constants.expoConfig?.extra?.privyClientId}
     >
-      <Stack />
+      <GestureHandlerRootView>
+        <Slot />
+      </GestureHandlerRootView>
     </PrivyProvider>
   );
 }
