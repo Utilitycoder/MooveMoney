@@ -1,7 +1,8 @@
 export const Fonts = {
-  brand: "Nunito",
-  brandBold: "Nunito_700Bold",
-  brandBlack: "Nunito_900Black",
+  brand: "PlusJakartaSans_400Regular",
+  brandMedium: "PlusJakartaSans_500Medium",
+  brandBold: "PlusJakartaSans_600SemiBold",
+  brandBlack: "PlusJakartaSans_700Bold",
 };
 
 export const Colors = {

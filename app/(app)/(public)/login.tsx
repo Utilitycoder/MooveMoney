@@ -1,3 +1,4 @@
+import IconButton from "@/components/atoms/IconButton";
 import { Fonts, ThemeColors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLoginWithOAuth } from "@privy-io/expo";
@@ -5,22 +6,21 @@ import { Href, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState("");
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [authError, setAuthError] = useState("");
 
   const googleAuth = useLoginWithOAuth({
@@ -33,33 +33,9 @@ export default function LoginScreen() {
     },
   });
 
-  const appleAuth = useLoginWithOAuth({
-    onSuccess: () => {
-      router.replace("/(app)/(auth)" as Href);
-    },
-    onError: (err) => {
-      console.log("Apple auth error:", err);
-      setAuthError(err.message || "Authentication failed. Please try again.");
-    },
-  });
-
   const handleGoogleLogin = () => {
     setAuthError("");
     googleAuth.login({ provider: "google" });
-  };
-
-  const handleAppleLogin = () => {
-    setAuthError("");
-    appleAuth.login({ provider: "apple" });
-  };
-
-  const handleEmailContinue = () => {
-    if (!email.trim()) {
-      setAuthError("Please enter your email address");
-      return;
-    }
-    // Navigate to email verification or OTP screen
-    // router.push({ pathname: "/(app)/(public)/verify-email", params: { email } });
   };
 
   const handleBack = () => {
@@ -70,184 +46,126 @@ export default function LoginScreen() {
     }
   };
 
-  const isLoading =
-    googleAuth.state.status === "loading" ||
-    appleAuth.state.status === "loading";
+  const isLoading = googleAuth.state.status === "loading";
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={[styles.content, { paddingTop: insets.top + 10 }]}>
-        {/* Back Button */}
-        <Animated.View entering={FadeInDown.delay(100)} style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={ThemeColors.text} />
-          </TouchableOpacity>
-        </Animated.View>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <Animated.View entering={FadeIn.delay(100)} style={styles.header}>
+        <IconButton
+          icon="arrow-back"
+          onPress={handleBack}
+          color={ThemeColors.text}
+          backgroundColor={ThemeColors.surface}
+        />
+      </Animated.View>
 
-        {/* Logo & Welcome */}
+      {/* Main Content */}
+      <View style={styles.content}>
+        {/* Logo Mark */}
         <Animated.View
-          entering={FadeInUp.delay(150).springify()}
+          entering={FadeInUp.delay(200).springify()}
           style={styles.logoSection}
         >
-          <View style={styles.logoContainer}>
-            <View style={styles.logoIcon}>
-              <Ionicons name="wallet" size={32} color={ThemeColors.text} />
-            </View>
-            <Text style={styles.logoText}>
-              Moove<Text style={styles.logoTextAccent}>Money</Text>
-            </Text>
+          <View style={styles.logoMark}>
+            <Ionicons name="wallet" size={28} color={ThemeColors.text} />
           </View>
-          <Text style={styles.welcomeTitle}>Welcome Back</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Sign in to continue managing your crypto with ease
-          </Text>
         </Animated.View>
 
-        {/* Auth Options */}
-        <View style={styles.authSection}>
-          {/* Social Login Buttons */}
-          <Animated.View
-            entering={FadeInDown.delay(200).springify()}
-            style={styles.socialButtons}
-          >
-            {/* Google Button */}
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={handleGoogleLogin}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              {googleAuth.state.status === "loading" ? (
-                <ActivityIndicator size="small" color={ThemeColors.text} />
-              ) : (
-                <>
-                  <View style={styles.socialIconContainer}>
-                    <Ionicons name="logo-google" size={20} color="#DB4437" />
-                  </View>
-                  <Text style={styles.socialButtonText}>
-                    Continue with Google
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            {/* Apple Button */}
-            <TouchableOpacity
-              style={[styles.socialButton, styles.appleButton]}
-              onPress={handleAppleLogin}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              {appleAuth.state.status === "loading" ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <>
-                  <View style={[styles.socialIconContainer, styles.appleIcon]}>
-                    <Ionicons name="logo-apple" size={22} color="#FFFFFF" />
-                  </View>
-                  <Text
-                    style={[styles.socialButtonText, styles.appleButtonText]}
-                  >
-                    Continue with Apple
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* Divider */}
-          <Animated.View
-            entering={FadeInDown.delay(300)}
-            style={styles.dividerContainer}
-          >
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </Animated.View>
-
-          {/* Email Input */}
-          <Animated.View
-            entering={FadeInDown.delay(350).springify()}
-            style={styles.emailSection}
-          >
-            <View
-              style={[
-                styles.emailInputContainer,
-                isEmailFocused && styles.emailInputFocused,
-              ]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={
-                  isEmailFocused ? ThemeColors.primary : ThemeColors.textMuted
-                }
-              />
-              <TextInput
-                style={styles.emailInput}
-                placeholder="Enter your email"
-                placeholderTextColor={ThemeColors.textMuted}
-                value={email}
-                onChangeText={setEmail}
-                onFocus={() => setIsEmailFocused(true)}
-                onBlur={() => setIsEmailFocused(false)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.emailButton,
-                (!email.trim() || isLoading) && styles.emailButtonDisabled,
-              ]}
-              onPress={handleEmailContinue}
-              disabled={!email.trim() || isLoading}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.emailButtonText}>Continue with Email</Text>
-              <Ionicons
-                name="arrow-forward"
-                size={20}
-                color={ThemeColors.text}
-              />
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* Error Message */}
-          {authError ? (
-            <Animated.View
-              entering={FadeInDown.duration(200)}
-              style={styles.errorContainer}
-            >
-              <Ionicons
-                name="alert-circle"
-                size={18}
-                color={ThemeColors.error}
-              />
-              <Text style={styles.errorText}>{authError}</Text>
-            </Animated.View>
-          ) : null}
-        </View>
-
-        {/* Footer */}
+        {/* Title */}
         <Animated.View
-          entering={FadeInDown.delay(400)}
-          style={[styles.footer, { paddingBottom: insets.bottom + 20 }]}
+          entering={FadeInUp.delay(300).springify()}
+          style={styles.titleSection}
         >
-          <Text style={styles.termsText}>
-            By continuing, you agree to our{" "}
-            <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
-            <Text style={styles.termsLink}>Privacy Policy</Text>
-          </Text>
+          <Text style={styles.title}>Sign in to</Text>
+          <Text style={styles.titleBrand}>MooveMoney</Text>
+        </Animated.View>
+
+        {/* Subtitle */}
+        <Animated.Text
+          entering={FadeInUp.delay(400).springify()}
+          style={styles.subtitle}
+        >
+          Your AI-powered crypto wallet.{"\n"}Smart, secure, effortless.
+        </Animated.Text>
+
+        {/* Features Pills */}
+        <Animated.View
+          entering={FadeInUp.delay(500).springify()}
+          style={styles.featurePills}
+        >
+          <View style={styles.pill}>
+            <Ionicons
+              name="sparkles"
+              size={12}
+              color={ThemeColors.primaryDark}
+            />
+            <Text style={styles.pillText}>AI Assistant</Text>
+          </View>
+          <View style={styles.pill}>
+            <Ionicons name="mic" size={12} color={ThemeColors.primaryDark} />
+            <Text style={styles.pillText}>Voice Commands</Text>
+          </View>
+          <View style={styles.pill}>
+            <Ionicons name="flash" size={12} color={ThemeColors.primaryDark} />
+            <Text style={styles.pillText}>Instant Transfers</Text>
+          </View>
         </Animated.View>
       </View>
-    </KeyboardAvoidingView>
+
+      {/* Bottom Section */}
+      <Animated.View
+        entering={FadeInDown.delay(600)}
+        style={[styles.bottomSection, { paddingBottom: insets.bottom + 24 }]}
+      >
+        {/* Google Button */}
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={handleGoogleLogin}
+          disabled={isLoading}
+          activeOpacity={0.85}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color={ThemeColors.surface} />
+          ) : (
+            <>
+              <Ionicons
+                name="logo-google"
+                size={18}
+                color={ThemeColors.surface}
+              />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </>
+          )}
+        </TouchableOpacity>
+
+        {/* Error */}
+        {authError ? (
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            style={styles.errorContainer}
+          >
+            <Ionicons name="alert-circle" size={16} color={ThemeColors.error} />
+            <Text style={styles.errorText}>{authError}</Text>
+          </Animated.View>
+        ) : null}
+
+        {/* Security Badge */}
+        <View style={styles.securityRow}>
+          <View style={styles.securityDot} />
+          <Text style={styles.securityText}>
+            Secured by Privy • Enterprise-grade encryption
+          </Text>
+        </View>
+
+        {/* Terms */}
+        <Text style={styles.terms}>
+          By continuing, you agree to our{" "}
+          <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
+          <Text style={styles.termsLink}>Privacy Policy</Text>
+        </Text>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -256,193 +174,134 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: ThemeColors.background,
   },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: ThemeColors.surface,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingHorizontal: 32,
   },
   logoSection: {
-    alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 28,
   },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 24,
-    gap: 10,
-  },
-  logoIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+  logoMark: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     backgroundColor: ThemeColors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
-  logoText: {
-    fontFamily: Fonts.brandBlack,
-    fontSize: 28,
-    color: ThemeColors.text,
+  titleSection: {
+    alignItems: "center",
+    marginBottom: 12,
   },
-  logoTextAccent: {
-    color: ThemeColors.primaryDark,
-  },
-  welcomeTitle: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 28,
-    color: ThemeColors.text,
-    marginBottom: 8,
-  },
-  welcomeSubtitle: {
+  title: {
     fontFamily: Fonts.brand,
-    fontSize: 16,
+    fontSize: 24,
     color: ThemeColors.textSecondary,
-    textAlign: "center",
-    lineHeight: 24,
-    paddingHorizontal: 20,
+    letterSpacing: -0.3,
   },
-  authSection: {
-    flex: 1,
-  },
-  socialButtons: {
-    gap: 12,
-  },
-  socialButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: ThemeColors.surface,
-    paddingVertical: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: ThemeColors.border,
-    gap: 12,
-  },
-  appleButton: {
-    backgroundColor: "#000000",
-    borderColor: "#000000",
-  },
-  socialIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: ThemeColors.surface,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  appleIcon: {
-    backgroundColor: "transparent",
-  },
-  socialButtonText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 16,
+  titleBrand: {
+    fontFamily: Fonts.brandBlack,
+    fontSize: 32,
     color: ThemeColors.text,
+    letterSpacing: -0.8,
   },
-  appleButtonText: {
-    color: "#FFFFFF",
-  },
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 28,
-    gap: 16,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: ThemeColors.border,
-  },
-  dividerText: {
+  subtitle: {
     fontFamily: Fonts.brand,
-    fontSize: 14,
+    fontSize: 15,
     color: ThemeColors.textMuted,
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 24,
   },
-  emailSection: {
-    gap: 14,
-  },
-  emailInputContainer: {
+  featurePills: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: ThemeColors.surface,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: ThemeColors.border,
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  emailInputFocused: {
-    borderColor: ThemeColors.primary,
-  },
-  emailInput: {
-    flex: 1,
-    fontFamily: Fonts.brand,
-    fontSize: 16,
-    color: ThemeColors.text,
-    paddingVertical: 16,
-  },
-  emailButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexWrap: "wrap",
     justifyContent: "center",
-    backgroundColor: ThemeColors.primary,
-    paddingVertical: 16,
-    borderRadius: 14,
     gap: 8,
   },
-  emailButtonDisabled: {
-    opacity: 0.5,
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: ThemeColors.surface,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: ThemeColors.border,
   },
-  emailButtonText: {
+  pillText: {
+    fontFamily: Fonts.brandMedium,
+    fontSize: 12,
+    color: ThemeColors.textSecondary,
+  },
+  bottomSection: {
+    paddingHorizontal: 24,
+  },
+  googleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: ThemeColors.text,
+    paddingVertical: 16,
+    borderRadius: 14,
+    gap: 10,
+  },
+  googleButtonText: {
     fontFamily: Fonts.brandBold,
     fontSize: 16,
-    color: ThemeColors.text,
+    color: ThemeColors.surface,
+    letterSpacing: -0.2,
   },
   errorContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FEF2F2",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderRadius: 10,
-    marginTop: 16,
+    marginTop: 12,
     gap: 8,
   },
   errorText: {
     fontFamily: Fonts.brand,
-    fontSize: 14,
+    fontSize: 13,
     color: ThemeColors.error,
     flex: 1,
   },
-  footer: {
+  securityRow: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingTop: 20,
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 24,
+    marginBottom: 16,
   },
-  termsText: {
+  securityDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: ThemeColors.success,
+  },
+  securityText: {
     fontFamily: Fonts.brand,
-    fontSize: 13,
+    fontSize: 12,
+    color: ThemeColors.textMuted,
+  },
+  terms: {
+    fontFamily: Fonts.brand,
+    fontSize: 12,
     color: ThemeColors.textMuted,
     textAlign: "center",
-    lineHeight: 20,
+    lineHeight: 18,
   },
   termsLink: {
-    fontFamily: Fonts.brandBold,
     color: ThemeColors.primaryDark,
   },
 });

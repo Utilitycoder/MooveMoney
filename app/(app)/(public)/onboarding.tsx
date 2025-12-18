@@ -1,7 +1,10 @@
+import PaginationDots from "@/components/molecules/PaginationDots";
+import OnboardingSlide from "@/components/screens/onboarding/OnboardingSlide";
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { ONBOARDING_SLIDES } from "@/data/onboarding";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -13,113 +16,30 @@ import {
 } from "react-native";
 import Animated, {
   FadeInDown,
-  FadeInUp,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
+  useSharedValue,
+  withSequence,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
-
-interface OnboardingSlide {
-  id: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  iconBgColor: string;
-  title: string;
-  highlightedText: string;
-  description: string;
-}
-
-const SLIDES: OnboardingSlide[] = [
-  {
-    id: "1",
-    icon: "chatbubble-ellipses",
-    iconBgColor: "#FEF3C7",
-    title: "Your Wallet,",
-    highlightedText: "Your Voice",
-    description:
-      "Send, receive, and manage crypto using simple chat or voice commands. No complex interfaces needed.",
-  },
-  {
-    id: "2",
-    icon: "shield-checkmark",
-    iconBgColor: "#D1FAE5",
-    title: "Enterprise-Grade",
-    highlightedText: "Security",
-    description:
-      "Protected by Privy with biometric authentication, secure enclave key management, and multi-factor protection.",
-  },
-  {
-    id: "3",
-    icon: "flash",
-    iconBgColor: "#FEE2E2",
-    title: "Lightning",
-    highlightedText: "Fast",
-    description:
-      "Built on Movement Network with sub-second finality. Your transfers complete before you can blink.",
-  },
-  {
-    id: "4",
-    icon: "globe",
-    iconBgColor: "#E0E7FF",
-    title: "Universal",
-    highlightedText: "Access",
-    description:
-      "Financial empowerment for anyone, anywhere. No bank account needed—just your phone and crypto.",
-  },
-];
-
-const OnboardingSlideItem = ({
-  item,
-  index,
-}: {
-  item: OnboardingSlide;
-  index: number;
-}) => {
-  return (
-    <View style={styles.slide}>
-      <Animated.View
-        entering={FadeInUp.delay(100).springify()}
-        style={[styles.iconContainer, { backgroundColor: item.iconBgColor }]}
-      >
-        <Ionicons name={item.icon} size={48} color={ThemeColors.text} />
-      </Animated.View>
-
-      <Animated.View
-        entering={FadeInDown.delay(200).springify()}
-        style={styles.textContainer}
-      >
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.highlightedTitle}>{item.highlightedText}</Text>
-        <Text style={styles.description}>{item.description}</Text>
-      </Animated.View>
-    </View>
-  );
-};
-
-const PaginationDot = ({
-  index,
-  currentIndex,
-}: {
-  index: number;
-  currentIndex: number;
-}) => {
-  const animatedStyle = useAnimatedStyle(() => {
-    const isActive = index === currentIndex;
-    return {
-      width: withSpring(isActive ? 32 : 8),
-      backgroundColor: isActive ? ThemeColors.primary : ThemeColors.border,
-    };
-  });
-
-  return <Animated.View style={[styles.dot, animatedStyle]} />;
-};
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollX = useSharedValue(0);
+  const buttonScale = useSharedValue(1);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -133,8 +53,16 @@ export default function OnboardingScreen() {
     itemVisiblePercentThreshold: 50,
   }).current;
 
+  useEffect(() => {
+    buttonScale.value = withSequence(
+      withTiming(0.96, { duration: 100 }),
+      withSpring(1, { damping: 15, stiffness: 300 })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
+
   const handleNext = () => {
-    if (currentIndex < SLIDES.length - 1) {
+    if (currentIndex < ONBOARDING_SLIDES.length - 1) {
       flatListRef.current?.scrollToIndex({
         index: currentIndex + 1,
         animated: true,
@@ -145,39 +73,43 @@ export default function OnboardingScreen() {
   };
 
   const handleGetStarted = () => {
-    // router.replace("/(app)/(public)/");
+    router.push("/(app)/(public)/login");
   };
 
   const handleSkip = () => {
-    // router.replace("/(app)/(public)/");
+    router.push("/(app)/(public)/login");
   };
 
-  const isLastSlide = currentIndex === SLIDES.length - 1;
+  const isLastSlide = currentIndex === ONBOARDING_SLIDES.length - 1;
+
+  const buttonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Skip Button */}
-      <Animated.View
-        entering={FadeInDown.delay(300)}
-        style={styles.skipContainer}
-      >
+      <View style={styles.header}>
+        <View />
         <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
-      </Animated.View>
+      </View>
 
       {/* Slides */}
-      <FlatList
+      <Animated.FlatList
         ref={flatListRef}
-        data={SLIDES}
+        data={ONBOARDING_SLIDES}
         renderItem={({ item, index }) => (
-          <OnboardingSlideItem item={item} index={index} />
+          <OnboardingSlide item={item} index={index} scrollX={scrollX} />
         )}
         keyExtractor={(item) => item.id}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         bounces={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         getItemLayout={(_, index) => ({
@@ -188,38 +120,37 @@ export default function OnboardingScreen() {
       />
 
       {/* Bottom Section */}
-      <View
-        style={[styles.bottomSection, { paddingBottom: insets.bottom + 20 }]}
+      <Animated.View
+        entering={FadeInDown.delay(400)}
+        style={[styles.bottomSection, { paddingBottom: insets.bottom + 24 }]}
       >
         {/* Pagination Dots */}
-        <View style={styles.pagination}>
-          {SLIDES.map((_, index) => (
-            <PaginationDot
-              key={index}
-              index={index}
-              currentIndex={currentIndex}
-            />
-          ))}
-        </View>
+        <PaginationDots
+          count={ONBOARDING_SLIDES.length}
+          currentIndex={currentIndex}
+          scrollX={scrollX}
+        />
 
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
+        {/* Action Button */}
+        <Animated.View style={buttonAnimatedStyle}>
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={handleNext}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
           >
             <Text style={styles.primaryButtonText}>
-              {isLastSlide ? "Get Started" : "Next"}
+              {isLastSlide ? "Get Started" : "Continue"}
             </Text>
-            <Ionicons
-              name={isLastSlide ? "rocket" : "arrow-forward"}
-              size={20}
-              color={ThemeColors.text}
-            />
+            <View style={styles.buttonIconContainer}>
+              <Ionicons
+                name="arrow-forward"
+                size={20}
+                color={ThemeColors.text}
+              />
+            </View>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </View>
   );
 }
@@ -229,14 +160,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: ThemeColors.background,
   },
-  skipContainer: {
-    position: "absolute",
-    top: 60,
-    right: 24,
-    zIndex: 10,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   skipButton: {
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
   },
   skipText: {
@@ -244,74 +176,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: ThemeColors.textSecondary,
   },
-  slide: {
-    width: width,
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 40,
-  },
-  iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 48,
-  },
-  textContainer: {
-    alignItems: "center",
-  },
-  title: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 36,
-    color: ThemeColors.text,
-    textAlign: "center",
-  },
-  highlightedTitle: {
-    fontFamily: Fonts.brandBlack,
-    fontSize: 36,
-    color: ThemeColors.primaryDark,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  description: {
-    fontFamily: Fonts.brand,
-    fontSize: 17,
-    color: ThemeColors.textSecondary,
-    textAlign: "center",
-    lineHeight: 26,
-    paddingHorizontal: 10,
-  },
   bottomSection: {
     paddingHorizontal: 24,
-  },
-  pagination: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 32,
-  },
-  dot: {
-    height: 8,
-    borderRadius: 4,
-  },
-  buttonContainer: {
-    gap: 12,
+    gap: 24,
   },
   primaryButton: {
-    backgroundColor: ThemeColors.primary,
+    backgroundColor: ThemeColors.text,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 18,
     borderRadius: 16,
-    gap: 8,
+    gap: 12,
   },
   primaryButtonText: {
     fontFamily: Fonts.brandBold,
-    fontSize: 18,
-    color: ThemeColors.text,
+    fontSize: 17,
+    color: ThemeColors.background,
+  },
+  buttonIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: ThemeColors.background,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

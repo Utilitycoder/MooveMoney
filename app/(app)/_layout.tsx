@@ -1,6 +1,5 @@
 import { Stack } from "expo-router";
 import React from "react";
-import { StyleSheet } from "react-native";
 
 const RootNav = () => {
   return (
@@ -12,5 +11,3 @@ const RootNav = () => {
 };
 
 export default RootNav;
-
-const styles = StyleSheet.create({});

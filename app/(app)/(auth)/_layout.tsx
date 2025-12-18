@@ -10,6 +10,14 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen
+        name="chat"
+        options={{
+          animation: "slide_from_bottom",
+          gestureEnabled: true,
+          gestureDirection: "vertical",
+        }}
+      />
     </Stack>
   );
 }

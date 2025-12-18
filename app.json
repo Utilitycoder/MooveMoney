@@ -21,7 +21,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.pragmaticaweds.moovemoney"
+      "package": "com.pragmaticaweds.moovemoney",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "extra": {
       "privyAppId": "cmj8uin8900rejm0dlmvgywdr",
@@ -47,7 +48,13 @@
       ],
       "expo-secure-store",
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow MooveMoney to access your microphone for voice commands."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
