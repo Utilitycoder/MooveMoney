@@ -1,4 +1,21 @@
+export const Fonts = {
+  brand: "Nunito",
+  brandBold: "Nunito_700Bold",
+  brandBlack: "Nunito_900Black",
+};
+
 export const Colors = {
+  background: "#fff",
+  text: "#FFE81F",
+  primary: "#01BEE5",
+  secondary: "#0094DD",
+  dark: "#000000",
+  light: "#e6e6e6",
+  primaryLight: "#E9F9FF",
+  muted: "#666",
+};
+
+export const ThemeColors = {
   // Backgrounds
   background: "#FAFAF8",
   surface: "#FFFFFF",
@@ -30,10 +47,4 @@ export const Colors = {
   dark: "#1A1A1A",
   light: "#FAFAF8",
   muted: "#6B7280",
-};
-
-export const Fonts = {
-  brand: "Nunito",
-  brandBold: "Nunito_700Bold",
-  brandBlack: "Nunito_900Black",
 };
