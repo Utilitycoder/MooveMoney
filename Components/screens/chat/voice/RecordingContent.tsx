@@ -1,18 +1,9 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { RecordingContentProps } from "@/types/chat";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { SharedValue } from "react-native-reanimated";
 import PulsingAICircle from "./PulsingAICircle";
 import WaveBar, { NUM_BARS } from "./WaveBar";
-
-interface RecordingContentProps {
-  isRecording: boolean;
-  recordingDuration: number;
-  pulseAnim: SharedValue<number>;
-  glowAnim: SharedValue<number>;
-  micScale: SharedValue<number>;
-  audioLevel: SharedValue<number>;
-}
 
 const RecordingContent: React.FC<RecordingContentProps> = ({
   isRecording,

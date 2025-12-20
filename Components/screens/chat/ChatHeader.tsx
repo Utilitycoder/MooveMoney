@@ -1,19 +1,16 @@
-import { Fonts, ThemeColors } from "@/constants/theme";
+import { ThemeColors } from "@/constants/theme";
+import { chatHeaderStyles } from "@/styles/chat";
+import { ChatHeaderProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-interface ChatHeaderProps {
-  onBack: () => void;
-  onClear?: () => void;
-}
+import { Text, TouchableOpacity, View } from "react-native";
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onClear }) => {
   return (
-    <View style={styles.container}>
+    <View style={chatHeaderStyles.container}>
       {/* Back Button */}
       <TouchableOpacity
-        style={styles.iconButton}
+        style={chatHeaderStyles.iconButton}
         onPress={onBack}
         activeOpacity={0.7}
       >
@@ -21,16 +18,16 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onClear }) => {
       </TouchableOpacity>
 
       {/* Title */}
-      <View style={styles.titleContainer}>
-        <View style={styles.aiIcon}>
+      <View style={chatHeaderStyles.titleContainer}>
+        <View style={chatHeaderStyles.aiIcon}>
           <Ionicons name="sparkles" size={16} color={ThemeColors.text} />
         </View>
-        <Text style={styles.title}>AI Assistant</Text>
+        <Text style={chatHeaderStyles.title}>AI Assistant</Text>
       </View>
 
       {/* Clear Button */}
       <TouchableOpacity
-        style={styles.iconButton}
+        style={chatHeaderStyles.iconButton}
         onPress={onClear}
         activeOpacity={0.7}
       >
@@ -43,43 +40,5 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onClear }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: ThemeColors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: ThemeColors.borderLight,
-  },
-  iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  aiIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: ThemeColors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 17,
-    color: ThemeColors.text,
-  },
-});
 
 export default ChatHeader;

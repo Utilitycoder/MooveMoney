@@ -1,13 +1,18 @@
+import { usePrivy } from "@privy-io/expo";
 import { Stack } from "expo-router";
-import React from "react";
 
-const RootNav = () => {
+export default function AppLayout() {
+  const { user } = usePrivy();
+
   return (
-    <Stack>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(public)" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!!user}>
+        <Stack.Screen name="(protected)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!user}>
+        <Stack.Screen name="(public)" />
+      </Stack.Protected>
     </Stack>
   );
-};
-
-export default RootNav;
+}

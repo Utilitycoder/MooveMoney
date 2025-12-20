@@ -1,7 +1,7 @@
 import { ThemeColors } from "@/constants/theme";
+import { PaginationDotProps, PaginationDotsProps } from "@/types/components";
 import React from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import type { SharedValue } from "react-native-reanimated";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -9,12 +9,6 @@ import Animated, {
 } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
-
-interface PaginationDotProps {
-  index: number;
-  currentIndex: number;
-  scrollX: SharedValue<number>;
-}
 
 const PaginationDot: React.FC<PaginationDotProps> = ({
   index,
@@ -46,12 +40,6 @@ const PaginationDot: React.FC<PaginationDotProps> = ({
 
   return <Animated.View style={[styles.dot, animatedStyle]} />;
 };
-
-interface PaginationDotsProps {
-  count: number;
-  currentIndex: number;
-  scrollX: SharedValue<number>;
-}
 
 const PaginationDots: React.FC<PaginationDotsProps> = ({
   count,

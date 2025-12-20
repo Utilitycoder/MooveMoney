@@ -1,13 +1,8 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { PreviewContentProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-interface PreviewContentProps {
-  isPlaying: boolean;
-  recordingDuration: number;
-  onPlayPause: () => void;
-}
 
 const PreviewContent: React.FC<PreviewContentProps> = ({
   isPlaying,

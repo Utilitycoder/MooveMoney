@@ -1,15 +1,8 @@
 import { ThemeColors } from "@/constants/theme";
+import { IconButtonProps } from "@/types/components";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
-
-interface IconButtonProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-  size?: number;
-  color?: string;
-  backgroundColor?: string;
-}
 
 const IconButton: React.FC<IconButtonProps> = ({
   icon,

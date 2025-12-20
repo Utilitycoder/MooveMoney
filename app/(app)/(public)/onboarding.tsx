@@ -1,14 +1,15 @@
 import PaginationDots from "@/components/molecules/PaginationDots";
 import OnboardingSlide from "@/components/screens/onboarding/OnboardingSlide";
-import { Fonts, ThemeColors } from "@/constants/theme";
+import { ThemeColors } from "@/constants/theme";
 import { ONBOARDING_SLIDES } from "@/data/onboarding";
+import { useAppStore } from "@/stores/appStore";
+import { onBoardingStyles } from "@/styles/onboarding";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -29,11 +30,11 @@ const { width } = Dimensions.get("window");
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const scrollX = useSharedValue(0);
   const insets = useSafeAreaInsets();
+  const buttonScale = useSharedValue(1);
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useSharedValue(0);
-  const buttonScale = useSharedValue(1);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -72,12 +73,20 @@ export default function OnboardingScreen() {
     }
   };
 
+  const onBoardCompleted = useAppStore((state) => state.onboardingCompleted);
+
+  const setOnboardingComplete = useAppStore(
+    (state) => state.setOnboardingCompleted
+  );
+
   const handleGetStarted = () => {
-    router.push("/(app)/(public)/login");
+    if (!onBoardCompleted) setOnboardingComplete(true);
+    router.replace("/login");
   };
 
   const handleSkip = () => {
-    router.push("/(app)/(public)/login");
+    if (!onBoardCompleted) setOnboardingComplete(true);
+    router.replace("/login");
   };
 
   const isLastSlide = currentIndex === ONBOARDING_SLIDES.length - 1;
@@ -87,12 +96,15 @@ export default function OnboardingScreen() {
   }));
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[onBoardingStyles.container, { paddingTop: insets.top }]}>
       {/* Skip Button */}
-      <View style={styles.header}>
+      <View style={onBoardingStyles.header}>
         <View />
-        <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-          <Text style={styles.skipText}>Skip</Text>
+        <TouchableOpacity
+          onPress={handleSkip}
+          style={onBoardingStyles.skipButton}
+        >
+          <Text style={onBoardingStyles.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
 
@@ -122,7 +134,10 @@ export default function OnboardingScreen() {
       {/* Bottom Section */}
       <Animated.View
         entering={FadeInDown.delay(400)}
-        style={[styles.bottomSection, { paddingBottom: insets.bottom + 24 }]}
+        style={[
+          onBoardingStyles.bottomSection,
+          { paddingBottom: insets.bottom + 24 },
+        ]}
       >
         {/* Pagination Dots */}
         <PaginationDots
@@ -134,14 +149,14 @@ export default function OnboardingScreen() {
         {/* Action Button */}
         <Animated.View style={buttonAnimatedStyle}>
           <TouchableOpacity
-            style={styles.primaryButton}
+            style={onBoardingStyles.primaryButton}
             onPress={handleNext}
             activeOpacity={0.85}
           >
-            <Text style={styles.primaryButtonText}>
+            <Text style={onBoardingStyles.primaryButtonText}>
               {isLastSlide ? "Get Started" : "Continue"}
             </Text>
-            <View style={styles.buttonIconContainer}>
+            <View style={onBoardingStyles.buttonIconContainer}>
               <Ionicons
                 name="arrow-forward"
                 size={20}
@@ -154,52 +169,3 @@ export default function OnboardingScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: ThemeColors.background,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  skipButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  skipText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 16,
-    color: ThemeColors.textSecondary,
-  },
-  bottomSection: {
-    paddingHorizontal: 24,
-    gap: 24,
-  },
-  primaryButton: {
-    backgroundColor: ThemeColors.text,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 18,
-    borderRadius: 16,
-    gap: 12,
-  },
-  primaryButtonText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 17,
-    color: ThemeColors.background,
-  },
-  buttonIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: ThemeColors.background,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

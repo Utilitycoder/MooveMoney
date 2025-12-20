@@ -1,12 +1,8 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { AppLogoProps } from "@/types/components";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-
-interface AppLogoProps {
-  size?: "small" | "medium" | "large";
-  showText?: boolean;
-}
 
 const AppLogo: React.FC<AppLogoProps> = ({
   size = "medium",

@@ -1,13 +1,9 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { UserGreetingProps } from "@/types/home";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-
-interface UserGreetingProps {
-  username?: string;
-  onMenuPress?: () => void;
-}
 
 const UserGreeting: React.FC<UserGreetingProps> = ({
   username = "User",

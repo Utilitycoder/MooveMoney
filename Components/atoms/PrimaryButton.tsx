@@ -1,15 +1,8 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { PrimaryButtonProps } from "@/types/components";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-interface PrimaryButtonProps {
-  title: string;
-  onPress: () => void;
-  icon?: keyof typeof Ionicons.glyphMap;
-  disabled?: boolean;
-  variant?: "dark" | "light";
-}
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   title,

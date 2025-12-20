@@ -1,17 +1,8 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
-import { VoiceModalMode } from "@/types/chat";
+import { VoiceRecordingFooterProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-interface VoiceRecordingFooterProps {
-  mode: VoiceModalMode;
-  paddingBottom: number;
-  onCancel: () => void;
-  onStopRecording: () => void;
-  onReRecord: () => void;
-  onSend: () => void;
-}
 
 const VoiceRecordingFooter: React.FC<VoiceRecordingFooterProps> = ({
   mode,

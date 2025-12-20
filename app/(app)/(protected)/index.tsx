@@ -3,11 +3,12 @@ import AIFloatingButton from "@/components/screens/home/AIFloatingButton";
 import BalanceCard from "@/components/screens/home/BalanceCard";
 import TransactionsList from "@/components/screens/home/TransactionsList";
 import UserGreeting from "@/components/screens/home/UserGreeting";
-import { ThemeColors } from "@/constants/theme";
+import { useMovementWallet } from "@/hooks/useMovementWallet";
+import { homeStyles } from "@/styles/home";
 import { usePrivy } from "@privy-io/expo";
-import { Href, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -19,23 +20,23 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { logout, user } = usePrivy();
-  const [menuVisible, setMenuVisible] = useState(false);
   const scrollY = useSharedValue(0);
+  const insets = useSafeAreaInsets();
+  const { logout, user } = usePrivy();
+  const { wallet } = useMovementWallet(user);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const handleLogout = async () => {
     try {
       await logout();
-      router.replace("/(app)/(public)/login" as Href);
     } catch (error) {
       console.log("Logout error:", error);
     }
   };
 
   const handleAIPress = () => {
-    router.push("/(app)/(auth)/chat");
+    router.push("/chat");
   };
 
   const menuOptions = [
@@ -57,10 +58,8 @@ export default function HomeScreen() {
     },
   ];
 
-  const linkedAccount = user?.linked_accounts?.[0] as
-    | { name?: string }
-    | undefined;
-  const username = linkedAccount?.name || "User";
+  const username =
+    (user?.linked_accounts?.[0] as { name?: string })?.name || "User";
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -80,16 +79,16 @@ export default function HomeScreen() {
   }));
 
   return (
-    <View style={styles.container}>
+    <View style={homeStyles.container}>
       {/* Sticky Header */}
       <Animated.View
         style={[
-          styles.stickyHeader,
+          homeStyles.stickyHeader,
           { paddingTop: insets.top + 12 },
           headerShadowStyle,
         ]}
       >
-        <Animated.View style={[styles.headerBg, headerBgStyle]} />
+        <Animated.View style={[homeStyles.headerBg, headerBgStyle]} />
         <UserGreeting
           username={username}
           onMenuPress={() => setMenuVisible(true)}
@@ -98,9 +97,9 @@ export default function HomeScreen() {
 
       {/* Scrollable Content */}
       <AnimatedScrollView
-        style={styles.scrollView}
+        style={homeStyles.scrollView}
         contentContainerStyle={[
-          styles.scrollContent,
+          homeStyles.scrollContent,
           { paddingTop: insets.top + 80, paddingBottom: insets.bottom + 100 },
         ]}
         showsVerticalScrollIndicator={false}
@@ -108,14 +107,20 @@ export default function HomeScreen() {
         scrollEventThrottle={16}
       >
         {/* Balance Card */}
-        <BalanceCard balance="0.00" delay={100} />
+        <BalanceCard
+          balance="0.00"
+          walletAddress={wallet?.address}
+          delay={100}
+        />
 
         {/* Transactions */}
         <TransactionsList delay={200} />
       </AnimatedScrollView>
 
       {/* AI Floating Button */}
-      <View style={[styles.floatingContainer, { bottom: insets.bottom + 16 }]}>
+      <View
+        style={[homeStyles.floatingContainer, { bottom: insets.bottom + 16 }]}
+      >
         <AIFloatingButton onPress={handleAIPress} />
       </View>
 
@@ -129,35 +134,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: ThemeColors.background,
-  },
-  stickyHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 100,
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-  },
-  headerBg: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: ThemeColors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    gap: 24,
-  },
-  floatingContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-  },
-});

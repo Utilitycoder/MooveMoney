@@ -1,14 +1,9 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { CommandCardProps } from "@/types/home";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-
-interface CommandCardProps {
-  placeholder?: string;
-  example?: string;
-  delay?: number;
-}
 
 const CommandCard: React.FC<CommandCardProps> = ({
   placeholder = "Type or speak your command...",

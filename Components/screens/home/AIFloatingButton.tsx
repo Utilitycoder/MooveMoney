@@ -1,12 +1,9 @@
 import { ThemeColors } from "@/constants/theme";
+import { AIFloatingButtonProps } from "@/types/home";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
-
-interface AIFloatingButtonProps {
-  onPress?: () => void;
-}
 
 const AIFloatingButton: React.FC<AIFloatingButtonProps> = ({ onPress }) => {
   return (

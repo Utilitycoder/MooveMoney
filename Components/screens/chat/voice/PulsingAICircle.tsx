@@ -1,19 +1,12 @@
 import { ThemeColors } from "@/constants/theme";
+import { PulsingAICircleProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
-  SharedValue,
   interpolate,
   useAnimatedStyle,
 } from "react-native-reanimated";
-
-interface PulsingAICircleProps {
-  pulseAnim: SharedValue<number>;
-  glowAnim: SharedValue<number>;
-  micScale: SharedValue<number>;
-  audioLevel: SharedValue<number>;
-}
 
 const PulsingAICircle: React.FC<PulsingAICircleProps> = ({
   pulseAnim,

@@ -1,13 +1,8 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
-import { VoiceModalMode } from "@/types/chat";
+import { VoiceRecordingHeaderProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-interface VoiceRecordingHeaderProps {
-  mode: VoiceModalMode;
-  onClose: () => void;
-}
 
 const VoiceRecordingHeader: React.FC<VoiceRecordingHeaderProps> = ({
   mode,

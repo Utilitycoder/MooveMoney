@@ -1,17 +1,9 @@
 import { Fonts, ThemeColors } from "@/constants/theme";
+import { ActionItem, QuickActionsProps } from "@/types/home";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-
-interface ActionItem {
-  id: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  title: string;
-  color: string;
-  bgColor: string;
-  onPress?: () => void;
-}
 
 const DEFAULT_ACTIONS: ActionItem[] = [
   {
@@ -43,11 +35,6 @@ const DEFAULT_ACTIONS: ActionItem[] = [
     bgColor: "#F3E8FF",
   },
 ];
-
-interface QuickActionsProps {
-  actions?: ActionItem[];
-  delay?: number;
-}
 
 const QuickActions: React.FC<QuickActionsProps> = ({
   actions = DEFAULT_ACTIONS,

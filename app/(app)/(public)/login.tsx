@@ -1,12 +1,13 @@
-import IconButton from "@/components/atoms/IconButton";
-import { Fonts, ThemeColors } from "@/constants/theme";
+import { ThemeColors } from "@/constants/theme";
+import { loginStyles } from "@/styles/login";
 import { Ionicons } from "@expo/vector-icons";
 import { useLoginWithOAuth } from "@privy-io/expo";
-import { Href, useRouter } from "expo-router";
+import { useCreateWallet } from "@privy-io/expo/extended-chains";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  StyleSheet,
+  Image,
   Text,
   TouchableOpacity,
   View,
@@ -21,70 +22,79 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { createWallet } = useCreateWallet();
   const [authError, setAuthError] = useState("");
 
-  const googleAuth = useLoginWithOAuth({
-    onSuccess: () => {
-      router.replace("/(app)/(auth)" as Href);
+  const { login, state } = useLoginWithOAuth({
+    onSuccess: async (user) => {
+      const movementWallet = user.linked_accounts.find(
+        (account) => account.type === "wallet" && account.chain_type === "aptos"
+      );
+
+      if (!movementWallet) {
+        try {
+          await createWallet({ chainType: "aptos" });
+        } catch {
+          console.error("Failed to create Movement wallet");
+        }
+      }
+
+      //  "id": "did:privy:cmjbhtym400mtkv0dvaa7evsx"
+
+      console.log("movementWallet", movementWallet);
+
+      // User state will update and redirect happens via layout
+      router.replace("/(app)/(protected)");
     },
     onError: (err) => {
-      console.log("Google auth error:", err);
-      setAuthError(err.message || "Authentication failed. Please try again.");
+      // If already logged in, redirect instead of showing error
+      if (err.message?.includes("Already logged in")) {
+        router.replace("/(app)/(protected)");
+        return;
+      }
+
+      setAuthError("Authentication failed. Please try again.");
     },
   });
 
   const handleGoogleLogin = () => {
     setAuthError("");
-    googleAuth.login({ provider: "google" });
+    login({ provider: "google" });
   };
 
-  const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/(app)/(public)/onboarding" as Href);
-    }
-  };
-
-  const isLoading = googleAuth.state.status === "loading";
+  const isLoading = state.status === "loading";
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <Animated.View entering={FadeIn.delay(100)} style={styles.header}>
-        <IconButton
-          icon="arrow-back"
-          onPress={handleBack}
-          color={ThemeColors.text}
-          backgroundColor={ThemeColors.surface}
-        />
-      </Animated.View>
-
+    <View style={[loginStyles.container, { paddingTop: insets.top }]}>
       {/* Main Content */}
-      <View style={styles.content}>
+      <View style={loginStyles.content}>
         {/* Logo Mark */}
         <Animated.View
           entering={FadeInUp.delay(200).springify()}
-          style={styles.logoSection}
+          style={loginStyles.logoSection}
         >
-          <View style={styles.logoMark}>
-            <Ionicons name="wallet" size={28} color={ThemeColors.text} />
+          <View>
+            <Image
+              source={require("@/assets/images/logo.png")}
+              style={loginStyles.logoMark}
+              resizeMode="contain"
+            />
           </View>
         </Animated.View>
 
         {/* Title */}
         <Animated.View
           entering={FadeInUp.delay(300).springify()}
-          style={styles.titleSection}
+          style={loginStyles.titleSection}
         >
-          <Text style={styles.title}>Sign in to</Text>
-          <Text style={styles.titleBrand}>MooveMoney</Text>
+          <Text style={loginStyles.title}>Sign in to</Text>
+          <Text style={loginStyles.titleBrand}>MooveMoney</Text>
         </Animated.View>
 
         {/* Subtitle */}
         <Animated.Text
           entering={FadeInUp.delay(400).springify()}
-          style={styles.subtitle}
+          style={loginStyles.subtitle}
         >
           Your AI-powered crypto wallet.{"\n"}Smart, secure, effortless.
         </Animated.Text>
@@ -92,23 +102,23 @@ export default function LoginScreen() {
         {/* Features Pills */}
         <Animated.View
           entering={FadeInUp.delay(500).springify()}
-          style={styles.featurePills}
+          style={loginStyles.featurePills}
         >
-          <View style={styles.pill}>
+          <View style={loginStyles.pill}>
             <Ionicons
               name="sparkles"
               size={12}
               color={ThemeColors.primaryDark}
             />
-            <Text style={styles.pillText}>AI Assistant</Text>
+            <Text style={loginStyles.pillText}>AI Assistant</Text>
           </View>
-          <View style={styles.pill}>
+          <View style={loginStyles.pill}>
             <Ionicons name="mic" size={12} color={ThemeColors.primaryDark} />
-            <Text style={styles.pillText}>Voice Commands</Text>
+            <Text style={loginStyles.pillText}>Voice Commands</Text>
           </View>
-          <View style={styles.pill}>
+          <View style={loginStyles.pill}>
             <Ionicons name="flash" size={12} color={ThemeColors.primaryDark} />
-            <Text style={styles.pillText}>Instant Transfers</Text>
+            <Text style={loginStyles.pillText}>Instant Transfers</Text>
           </View>
         </Animated.View>
       </View>
@@ -116,11 +126,14 @@ export default function LoginScreen() {
       {/* Bottom Section */}
       <Animated.View
         entering={FadeInDown.delay(600)}
-        style={[styles.bottomSection, { paddingBottom: insets.bottom + 24 }]}
+        style={[
+          loginStyles.bottomSection,
+          { paddingBottom: insets.bottom + 24 },
+        ]}
       >
         {/* Google Button */}
         <TouchableOpacity
-          style={styles.googleButton}
+          style={loginStyles.googleButton}
           onPress={handleGoogleLogin}
           disabled={isLoading}
           activeOpacity={0.85}
@@ -128,14 +141,16 @@ export default function LoginScreen() {
           {isLoading ? (
             <ActivityIndicator size="small" color={ThemeColors.surface} />
           ) : (
-            <>
+            <View style={loginStyles.googleButtonContent}>
               <Ionicons
                 name="logo-google"
                 size={18}
                 color={ThemeColors.surface}
               />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </>
+              <Text style={loginStyles.googleButtonText}>
+                Continue with Google
+              </Text>
+            </View>
           )}
         </TouchableOpacity>
 
@@ -143,165 +158,28 @@ export default function LoginScreen() {
         {authError ? (
           <Animated.View
             entering={FadeIn.duration(200)}
-            style={styles.errorContainer}
+            style={loginStyles.errorContainer}
           >
             <Ionicons name="alert-circle" size={16} color={ThemeColors.error} />
-            <Text style={styles.errorText}>{authError}</Text>
+            <Text style={loginStyles.errorText}>{authError}</Text>
           </Animated.View>
         ) : null}
 
         {/* Security Badge */}
-        <View style={styles.securityRow}>
-          <View style={styles.securityDot} />
-          <Text style={styles.securityText}>
+        <View style={loginStyles.securityRow}>
+          <View style={loginStyles.securityDot} />
+          <Text style={loginStyles.securityText}>
             Secured by Privy • Enterprise-grade encryption
           </Text>
         </View>
 
         {/* Terms */}
-        <Text style={styles.terms}>
+        <Text style={loginStyles.terms}>
           By continuing, you agree to our{" "}
-          <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
-          <Text style={styles.termsLink}>Privacy Policy</Text>
+          <Text style={loginStyles.termsLink}>Terms of Service</Text> and{" "}
+          <Text style={loginStyles.termsLink}>Privacy Policy</Text>
         </Text>
       </Animated.View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: ThemeColors.background,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-  logoSection: {
-    marginBottom: 28,
-  },
-  logoMark: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
-    backgroundColor: ThemeColors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  titleSection: {
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  title: {
-    fontFamily: Fonts.brand,
-    fontSize: 24,
-    color: ThemeColors.textSecondary,
-    letterSpacing: -0.3,
-  },
-  titleBrand: {
-    fontFamily: Fonts.brandBlack,
-    fontSize: 32,
-    color: ThemeColors.text,
-    letterSpacing: -0.8,
-  },
-  subtitle: {
-    fontFamily: Fonts.brand,
-    fontSize: 15,
-    color: ThemeColors.textMuted,
-    textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  featurePills: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 8,
-  },
-  pill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: ThemeColors.surface,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: ThemeColors.border,
-  },
-  pillText: {
-    fontFamily: Fonts.brandMedium,
-    fontSize: 12,
-    color: ThemeColors.textSecondary,
-  },
-  bottomSection: {
-    paddingHorizontal: 24,
-  },
-  googleButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: ThemeColors.text,
-    paddingVertical: 16,
-    borderRadius: 14,
-    gap: 10,
-  },
-  googleButtonText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 16,
-    color: ThemeColors.surface,
-    letterSpacing: -0.2,
-  },
-  errorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-    marginTop: 12,
-    gap: 8,
-  },
-  errorText: {
-    fontFamily: Fonts.brand,
-    fontSize: 13,
-    color: ThemeColors.error,
-    flex: 1,
-  },
-  securityRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 24,
-    marginBottom: 16,
-  },
-  securityDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: ThemeColors.success,
-  },
-  securityText: {
-    fontFamily: Fonts.brand,
-    fontSize: 12,
-    color: ThemeColors.textMuted,
-  },
-  terms: {
-    fontFamily: Fonts.brand,
-    fontSize: 12,
-    color: ThemeColors.textMuted,
-    textAlign: "center",
-    lineHeight: 18,
-  },
-  termsLink: {
-    color: ThemeColors.primaryDark,
-  },
-});
