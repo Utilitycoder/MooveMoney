@@ -24,6 +24,14 @@ export default function ProtectedLayout() {
             animation: "slide_from_bottom",
           }}
         />
+        <Stack.Screen
+          name="voice"
+          options={{
+            gestureEnabled: true,
+            gestureDirection: "vertical",
+            animation: "slide_from_bottom",
+          }}
+        />
       </Stack>
     </AuthBoundary>
   );

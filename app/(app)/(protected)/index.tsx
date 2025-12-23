@@ -35,8 +35,12 @@ export default function HomeScreen() {
     }
   };
 
-  const handleAIPress = () => {
+  const handleChatPress = () => {
     router.push("/chat");
+  };
+
+  const handleVoicePress = () => {
+    router.push("/voice");
   };
 
   const menuOptions = [
@@ -121,7 +125,10 @@ export default function HomeScreen() {
       <View
         style={[homeStyles.floatingContainer, { bottom: insets.bottom + 16 }]}
       >
-        <AIFloatingButton onPress={handleAIPress} />
+        <AIFloatingButton
+          onChatPress={handleChatPress}
+          onVoicePress={handleVoicePress}
+        />
       </View>
 
       {/* Menu Bottom Sheet */}

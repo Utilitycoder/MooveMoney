@@ -12,7 +12,8 @@ export interface BalanceCardProps {
 }
 
 export interface AIFloatingButtonProps {
-  onPress?: () => void;
+  onChatPress?: () => void;
+  onVoicePress?: () => void;
 }
 
 export interface ActionItem {

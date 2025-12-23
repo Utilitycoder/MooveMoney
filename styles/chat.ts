@@ -178,20 +178,13 @@ export const chatInputStyles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1.5,
     borderColor: ThemeColors.border,
-    paddingHorizontal: 8,
+    paddingLeft: 16,
+    paddingRight: 8,
     paddingVertical: 8,
     gap: 8,
   },
   inputWrapperFocused: {
     borderColor: ThemeColors.primary,
-  },
-  micButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(245, 200, 66, 0.15)",
-    justifyContent: "center",
-    alignItems: "center",
   },
   input: {
     flex: 1,

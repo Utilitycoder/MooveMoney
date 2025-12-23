@@ -1,7 +1,7 @@
 import { ThemeColors } from "@/constants/theme";
 import { loginStyles } from "@/styles/login";
 import { Ionicons } from "@expo/vector-icons";
-import { useLoginWithOAuth } from "@privy-io/expo";
+import { useIdentityToken, useLoginWithOAuth } from "@privy-io/expo";
 import { useCreateWallet } from "@privy-io/expo/extended-chains";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -23,6 +23,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { createWallet } = useCreateWallet();
+  const { getIdentityToken } = useIdentityToken();
   const [authError, setAuthError] = useState("");
 
   const { login, state } = useLoginWithOAuth({
@@ -39,9 +40,12 @@ export default function LoginScreen() {
         }
       }
 
+      const idToken = await getIdentityToken();
+      // console.log("idToken", idToken);
+
       //  "id": "did:privy:cmjbhtym400mtkv0dvaa7evsx"
 
-      console.log("movementWallet", movementWallet);
+      // console.log("movementWallet", movementWallet);
 
       // User state will update and redirect happens via layout
       router.replace("/(app)/(protected)");

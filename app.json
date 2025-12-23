@@ -5,28 +5,44 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
     "scheme": "moovemoney",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pragmaticaweds.moovemoney"
+      "bundleIdentifier": "com.pragmaticaweds.moovemoney",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundImage": "./assets/images/icon.png",
+        "monochromeImage": "./assets/images/icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.pragmaticaweds.moovemoney",
-      "softwareKeyboardLayoutMode": "resize"
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "extra": {
       "privyAppId": "cmj8uin8900rejm0dlmvgywdr",
-      "privyClientId": "client-WY6U5EvAwSA31VMpHM1fK2KSqRnmF5tfhA26sWQyPPab1"
+      "privyClientId": "client-WY6U5EvAwSA31VMpHM1fK2KSqRnmF5tfhA26sWQyPPab1",
+      "router": {},
+      "eas": {
+        "projectId": "4d324853-e128-408e-81d8-d1722326d1d3"
+      }
     },
     "web": {
       "output": "static",
