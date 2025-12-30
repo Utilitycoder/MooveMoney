@@ -17,6 +17,7 @@ export type VoiceChatState =
 
 export interface VoiceChatMessage extends ChatMessage {
   audioUri?: string; // Original audio URI for user messages
+  audioBase64?: string; // Base64 encoded audio for API/storage
   isVoiceInput?: boolean; // Whether this was from voice input
 }
 
@@ -48,6 +49,7 @@ export interface UseVoiceChatReturn {
   endConversation: () => void;
   clearMessages: () => void;
   retryLastMessage: () => Promise<void>;
+  addMessage: (message: VoiceChatMessage) => void;
 }
 
 export interface VoiceChatHeaderProps {

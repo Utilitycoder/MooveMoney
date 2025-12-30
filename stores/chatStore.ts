@@ -1,45 +1,40 @@
-import { Chat, ChatMessage, ChatStore } from "@/types/chat";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ChatMessage, ChatStore } from "@/types/chat";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
 
-export const useChatStore = create<ChatStore>()(
-  persist(
-    (set) => ({
-      chatHistory: [],
-      isWaitingForResponse: false,
-      setIsWaitingForResponse: (isWaitingForResponse: boolean) => {
-        set({ isWaitingForResponse });
-      },
+export const useChatStore = create<ChatStore>((set) => ({
+  messages: [],
+  conversationId: undefined,
+  conversationHistory: [],
+  isWaitingForResponse: false,
 
-      createNewChat: (title: string) => {
-        const newChat: Chat = {
-          title,
-          messages: [],
-          id: Date.now().toString(),
-        };
+  setIsWaitingForResponse: (isWaitingForResponse: boolean) => {
+    set({ isWaitingForResponse });
+  },
 
-        set((state) => ({ chatHistory: [newChat, ...state.chatHistory] }));
+  addMessage: (message: ChatMessage) => {
+    // Use functional update for better performance
+    set((state) => {
+      // Create new array reference to trigger re-render
+      const newMessages = [...state.messages, message];
+      return { messages: newMessages };
+    });
+  },
 
-        return newChat.id;
-      },
+  setConversationId: (conversationId: string | undefined) => {
+    set({ conversationId });
+  },
 
-      addNewMessage: (chatId: string, message: ChatMessage) => {
-        set((state) => ({
-          chatHistory: state.chatHistory.map((chat) => {
-            const chatToUpdate = chat.id === chatId;
+  setConversationHistory: (
+    history: { role: "user" | "assistant"; content: string }[]
+  ) => {
+    set({ conversationHistory: history });
+  },
 
-            return chatToUpdate
-              ? { ...chat, messages: [...chat.messages, message] }
-              : chat;
-          }),
-        }));
-      },
-    }),
-    {
-      name: "chat-history",
-      storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
-);
+  clearMessages: () => {
+    set({
+      messages: [],
+      conversationId: undefined,
+      conversationHistory: [],
+    });
+  },
+}));

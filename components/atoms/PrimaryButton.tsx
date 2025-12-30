@@ -2,7 +2,13 @@ import { Fonts, ThemeColors } from "@/constants/theme";
 import { PrimaryButtonProps } from "@/types/components";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   title,
@@ -10,19 +16,21 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   icon = "arrow-forward",
   disabled = false,
   variant = "dark",
+  loading = false,
 }) => {
   const isDark = variant === "dark";
+  const isDisabled = disabled || loading;
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
         isDark ? styles.buttonDark : styles.buttonLight,
-        disabled && styles.buttonDisabled,
+        isDisabled && styles.buttonDisabled,
       ]}
       onPress={onPress}
       activeOpacity={0.85}
-      disabled={disabled}
+      disabled={isDisabled}
     >
       <Text
         style={[styles.buttonText, isDark ? styles.textLight : styles.textDark]}
@@ -35,11 +43,18 @@ const PrimaryButton: React.FC<PrimaryButtonProps> = ({
           isDark ? styles.iconContainerLight : styles.iconContainerDark,
         ]}
       >
-        <Ionicons
-          name={icon}
-          size={20}
-          color={isDark ? ThemeColors.text : ThemeColors.background}
-        />
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={isDark ? ThemeColors.text : ThemeColors.background}
+          />
+        ) : icon ? (
+          <Ionicons
+            name={icon}
+            size={20}
+            color={isDark ? ThemeColors.text : ThemeColors.background}
+          />
+        ) : null}
       </View>
     </TouchableOpacity>
   );

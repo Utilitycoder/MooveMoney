@@ -6,14 +6,35 @@ import { createJSONStorage, persist } from "zustand/middleware";
 export const useAppStore = create<AppStore>()(
   persist(
     (set) => ({
+      user: null,
+      balance: null,
       onboardingCompleted: false,
-      setOnboardingCompleted: (onboardingCompleted: boolean) => {
-        set({ onboardingCompleted });
-      },
+
+      setOnboardingCompleted: (onboardingCompleted) =>
+        set({ onboardingCompleted }),
+
+      setUser: ({ user }) =>
+        set({
+          user,
+        }),
+
+      setBalance: (balance) => set({ balance }),
+
+      clearBalance: () => set({ balance: null }),
+
+      clearUser: () =>
+        set({
+          user: null,
+        }),
     }),
     {
       name: "app-store",
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        user: state.user,
+        balance: state.balance,
+        onboardingCompleted: state.onboardingCompleted,
+      }),
     }
   )
 );

@@ -68,7 +68,11 @@ const AIFloatingButton: React.FC<AIFloatingButtonProps> = ({
           style={[floatButtonStyles.menuButton, floatButtonStyles.chatButton]}
           onPress={handleChatPress}
         >
-          <Ionicons name="chatbubble" size={24} color={ThemeColors.text} />
+          <Ionicons
+            name="chatbubble-ellipses-sharp"
+            size={24}
+            color={ThemeColors.text}
+          />
         </AnimatedTouchable>
       )}
 

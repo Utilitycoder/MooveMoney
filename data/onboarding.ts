@@ -8,7 +8,7 @@ export const ONBOARDING_SLIDES: OnboardingSlideData[] = [
     title: "Your Wallet,",
     highlightedText: "Your Voice",
     description:
-      "Send, receive, and manage crypto using simple chat or voice commands. No complex interfaces needed.",
+      "Send and manage your MOVE using simple voice natural language. No complex interfaces.",
   },
   {
     id: "2",
@@ -17,7 +17,7 @@ export const ONBOARDING_SLIDES: OnboardingSlideData[] = [
     title: "Enterprise-Grade",
     highlightedText: "Security",
     description:
-      "Protected by Privy with biometric authentication, secure enclave key management, and multi-factor protection.",
+      "Protected by Privy with biometric authentication and secure key management.",
   },
   {
     id: "3",
@@ -26,7 +26,7 @@ export const ONBOARDING_SLIDES: OnboardingSlideData[] = [
     title: "Lightning",
     highlightedText: "Fast",
     description:
-      "Built on Movement Network with sub-second finality. Your transfers complete before you can blink.",
+      "Built on Movement Network with sub-second finality. Transfers complete instantly.",
   },
   {
     id: "4",
@@ -35,6 +35,6 @@ export const ONBOARDING_SLIDES: OnboardingSlideData[] = [
     title: "Global",
     highlightedText: "Reach",
     description:
-      "Send money across borders instantly. Connect with anyone, anywhere in the world with just their wallet address.",
+      "Send money across borders instantly. Connect with anyone, anywhere.",
   },
 ];

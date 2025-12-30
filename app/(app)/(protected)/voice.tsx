@@ -1,44 +1,41 @@
-import TransactionApprovalModal from "@/components/screens/chat/TransactionApprovalModal";
+import TransactionFlowModal from "@/components/screens/chat/TransactionFlowModal";
 import EmptyVoiceChat from "@/components/screens/voiceChat/EmptyVoiceChat";
 import VoiceChatBubble from "@/components/screens/voiceChat/VoiceChatBubble";
 import VoiceChatHeader from "@/components/screens/voiceChat/VoiceChatHeader";
 import VoiceChatInput from "@/components/screens/voiceChat/VoiceChatInput";
 import { ThemeColors } from "@/constants/theme";
+import { useTransactionFlow } from "@/hooks/useTransactionFlow";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
+import { useContactsStore } from "@/stores/contactsStore";
 import { voiceChatStyles as styles } from "@/styles/voiceChat";
-import { TransactionDetails } from "@/types/chat";
+import {
+  TransactionDetails
+} from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+
+import { LegendList, LegendListRef } from "@legendapp/list";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function VoiceChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const flatListRef = useRef<FlatList>(null);
+  const legendListRef = useRef<LegendListRef>(null);
+  const addContact = useContactsStore((state) => state.addContact);
 
-  // Transaction modal state
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [pendingTransaction, setPendingTransaction] =
-    useState<TransactionDetails | null>(null);
+  
 
-  const handleClose = () => {
-    // End conversation before closing
-    endConversation();
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/");
-    }
-  };
+  const setTransactionRef = useRef<((transaction: TransactionDetails) => void) | null>(null);
 
-  const handleTransactionDetected = (transaction: TransactionDetails) => {
-    setPendingTransaction(transaction);
+  const handleTransactionDetected = useCallback((transaction: TransactionDetails) => {
     setTimeout(() => {
-      setShowTransactionModal(true);
+      if (setTransactionRef.current) {
+        setTransactionRef.current(transaction);
+      }
     }, 500);
-  };
+  }, []);
 
   const {
     state,
@@ -53,30 +50,84 @@ export default function VoiceChatScreen() {
     endConversation,
     clearMessages,
     retryLastMessage,
+    addMessage,
   } = useVoiceChat({
     onTransactionDetected: handleTransactionDetected,
-    useMockService: true,
+    useMockService: false,
   });
 
-  // Scroll to bottom when new messages arrive
-  React.useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+  // Use reusable transaction flow hook
+  const {
+    transactionState,
+    isApproving,
+    handleApprove: handleTransactionApprove,
+    handleReject: handleTransactionReject,
+    handleViewDetails,
+    handleTryAgain,
+    resetTransactionState,
+    setTransaction,
+  } = useTransactionFlow({
+    onSuccess: (result, details) => {
+      // Add success message to chat
+      addMessage({
+        id: `${Date.now()}-success`,
+        role: "assistant",
+        content: `✅ Transaction completed! ${details.amount} MOVE has been sent successfully.`,
+        timestamp: new Date(),
+      });
+    },
+    onReject: () => {
+      // Add a cancellation message to chat
+      addMessage({
+        id: Date.now().toString(),
+        role: "assistant",
+        content:
+          "Transaction cancelled. Is there anything else I can help you with?",
+        timestamp: new Date(),
+      });
+    },
+    onBiometricError: (status) => {
+      const biometricErrors: Record<string, string> = {
+        not_available:
+          "Biometric authentication is not available on this device. Please enable it in your device settings.",
+        cancelled: "Transaction cancelled.",
+        failed: "Biometric authentication failed. Please try again.",
+      };
+
+      const errorContent = biometricErrors[status];
+
+      if (errorContent) {
+        addMessage({
+          id: `${Date.now()}-biometric-${status}`,
+          role: "assistant",
+          content: errorContent,
+          timestamp: new Date(),
+        });
+      }
+    },
+  });
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        legendListRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+  
+      return () => clearTimeout(timer);
+    }, [messages]);
+
+  // Connect the ref to the hook's setTransaction
+  useEffect(() => {
+    setTransactionRef.current = setTransaction;
+  }, [setTransaction]);
+
+  const handleClose = () => {
+    // End conversation before closing
+    endConversation();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/");
     }
-  }, [messages]);
-
-  const handleTransactionApprove = () => {
-    console.log("Transaction approved:", pendingTransaction);
-    setShowTransactionModal(false);
-    setPendingTransaction(null);
-  };
-
-  const handleTransactionReject = () => {
-    console.log("Transaction rejected");
-    setShowTransactionModal(false);
-    setPendingTransaction(null);
   };
 
   // Show empty state only when not in conversation and no messages
@@ -96,19 +147,22 @@ export default function VoiceChatScreen() {
       />
 
       {/* Content */}
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, marginTop:1 }}>
         {showEmptyState ? (
           <EmptyVoiceChat />
         ) : (
-          <FlatList
-            ref={flatListRef}
+          <LegendList
+            ref={legendListRef}
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
               <VoiceChatBubble message={item} index={index} />
             )}
-            contentContainerStyle={styles.messagesList}
-            showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+          styles.messagesList,
+          { paddingBottom: 0 },
+          ]}
+          showsVerticalScrollIndicator={false}
           />
         )}
 
@@ -147,16 +201,22 @@ export default function VoiceChatScreen() {
       {/* Safe area bottom padding */}
       <View style={{ height: insets.bottom }} />
 
-      {/* Transaction Approval Modal */}
-      <TransactionApprovalModal
-        visible={showTransactionModal && !!pendingTransaction}
-        onClose={() => {
-          setShowTransactionModal(false);
-          setPendingTransaction(null);
-        }}
-        transaction={pendingTransaction}
+      {/* Unified Transaction Flow Modal */}
+      <TransactionFlowModal
+        visible={transactionState.uiState !== "idle"}
+        uiState={transactionState.uiState}
+        processingStage={transactionState.processingStage}
+        transaction={transactionState.pendingTransaction}
+        result={transactionState.result}
+        isApproving={isApproving}
+        onClose={resetTransactionState}
         onApprove={handleTransactionApprove}
         onReject={handleTransactionReject}
+        onTryAgain={handleTryAgain}
+        onViewDetails={handleViewDetails}
+        onSaveAddress={(address: string, name: string) => {
+          addContact(name, address);
+        }}
       />
     </View>
   );

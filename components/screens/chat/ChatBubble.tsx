@@ -1,9 +1,11 @@
 import { ThemeColors } from "@/constants/theme";
 import { chatBubbleStyles } from "@/styles/chat";
+import { getMarkdownStyle } from "@/styles/markDownStyle";
 import { ChatBubbleProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import Markdown from "react-native-markdown-display";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message, index }) => {
@@ -31,11 +33,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, index }) => {
           isUser ? chatBubbleStyles.bubbleUser : chatBubbleStyles.bubbleAI,
         ]}
       >
-        <Text
-          style={[chatBubbleStyles.text, isUser && chatBubbleStyles.textUser]}
-        >
-          {message.content}
-        </Text>
+        <Markdown style={getMarkdownStyle(isUser)}>{message.content}</Markdown>
       </View>
 
       {/* User Avatar */}

@@ -26,6 +26,7 @@ const VoiceChatHeader: React.FC<VoiceChatHeaderProps> = ({
     if (
       state === "recording" ||
       state === "processing" ||
+      state === "responding" ||
       state === "listening"
     ) {
       dotPulse.value = withRepeat(
@@ -56,6 +57,12 @@ const VoiceChatHeader: React.FC<VoiceChatHeaderProps> = ({
             showDot: true,
           };
         case "processing":
+          return {
+            text: "Thinking",
+            color: ThemeColors.primary,
+            showDot: true,
+          };
+        case "responding":
           return {
             text: "Thinking",
             color: ThemeColors.primary,

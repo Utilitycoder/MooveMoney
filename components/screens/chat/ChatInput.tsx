@@ -1,8 +1,9 @@
 import { ThemeColors } from "@/constants/theme";
+import { useChatStore } from "@/stores/chatStore";
 import { chatInputStyles } from "@/styles/chat";
 import { ChatInputProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   TextInput,
@@ -18,26 +19,33 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-const ChatInput: React.FC<ChatInputProps> = ({
-  value,
-  onChangeText,
-  onSend,
-  isLoading = false,
-  placeholder = "Message AI assistant...",
-}) => {
+const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
   const insets = useSafeAreaInsets();
-  const [isFocused, setIsFocused] = useState(false);
   const sendScale = useSharedValue(1);
+  const inputRef = useRef<TextInput>(null);
+  const [message, setMessage] = useState("");
+  const isLoading = useChatStore((state) => state.isWaitingForResponse);
+  const [isFocused, setIsFocused] = useState(false);
 
-  const canSend = value.trim().length > 0 && !isLoading;
+  const canSend = message.trim().length > 0;
 
-  const handleSendPress = () => {
-    if (canSend) {
-      sendScale.value = withSpring(0.85, {}, () => {
-        sendScale.value = withSpring(1);
-      });
-      onSend();
-    }
+  const handleSendPress = async () => {
+    setMessage("");
+    inputRef.current?.clear();
+
+    if (!canSend) return;
+
+    // Capture the message value BEFORE clearing
+    const messageToSend = message.trim();
+
+    // Animate the send button
+    sendScale.value = withSpring(0.85, {}, () => {
+      sendScale.value = withSpring(1);
+    });
+
+    setTimeout(() => {
+      onSend(messageToSend);
+    }, 0);
   };
 
   const sendAnimatedStyle = useAnimatedStyle(() => ({
@@ -59,14 +67,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
       >
         {/* Text Input */}
         <TextInput
+          ref={inputRef}
           style={chatInputStyles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
+          value={message}
+          onChangeText={setMessage}
+          placeholder="Message AI assistant..."
           placeholderTextColor={ThemeColors.textMuted}
           multiline
-          maxLength={1000}
           editable={!isLoading}
+          maxLength={100}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />

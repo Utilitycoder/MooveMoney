@@ -12,17 +12,54 @@ export function getAIResponse(userInput: string): AIResponse {
 
   // Detect send intent and parse transaction details
   if (input.includes("send")) {
-    console.log("💬 Parsing send intent from:", input);
+    // console.log("💬 Parsing send intent from:", input);
     // Try to extract amount and recipient from user input
     const amountMatch = input.match(/(\d+\.?\d*)\s*(move|usdc|eth|usdt)/i);
     const addressMatch = input.match(/0x[a-fA-F0-9]{40}/);
+    // Match domain-style addresses like "alice.move" or names after "to"
+    // Updated regex to be more flexible and catch "alice.move" format
+    const domainMatch = input.match(
+      /to\s+([a-zA-Z0-9][a-zA-Z0-9._-]*\.[a-zA-Z0-9]+)/i
+    );
     const nameMatch = input.match(/to\s+([a-zA-Z\s]+?)(?:\s|$|0x)/i);
+
 
     const amount = amountMatch
       ? `${amountMatch[1]} ${amountMatch[2].toUpperCase()}`
       : "0.00 MOVE";
-    const recipient = addressMatch ? addressMatch[0] : undefined;
-    const recipientName = nameMatch ? nameMatch[1].trim() : undefined;
+
+    // Prefer hex address, then domain-style address, then name
+    let recipient = addressMatch
+      ? addressMatch[0]
+      : domainMatch && domainMatch[1].includes(".")
+      ? domainMatch[1]
+      : undefined;
+    let recipientName =
+      nameMatch && !domainMatch
+        ? nameMatch[1].trim()
+        : domainMatch && !domainMatch[1].includes(".")
+        ? domainMatch[1]
+        : undefined;
+
+    // If we have a domain-style name but no recipient, use it as recipient
+    if (!recipient && domainMatch) {
+      recipient = domainMatch[1];
+    }
+
+    // If we still don't have a recipient, try to extract from "to X" pattern
+    if (!recipient) {
+      const toMatch = input.match(/to\s+([^\s]+)/i);
+      if (toMatch) {
+        recipient = toMatch[1];
+      }
+    }
+
+    // console.log("📝 Extracted recipient data:", {
+    //   recipient,
+    //   recipientName,
+    //   domainMatch: domainMatch?.[1],
+    //   nameMatch: nameMatch?.[1],
+    // });
 
     // Calculate fee (mock: 0.001 MOVE or 0.1% of amount)
     const numericAmount = amountMatch ? parseFloat(amountMatch[1]) : 0;
@@ -42,7 +79,7 @@ export function getAIResponse(userInput: string): AIResponse {
       total: `${total} MOVE`,
     };
 
-    console.log("✅ Parsed transaction:", transactionData);
+    // console.log("✅ Parsed transaction:", transactionData);
 
     return {
       content:

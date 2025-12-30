@@ -1,61 +1,64 @@
-import { Fonts, ThemeColors } from "@/constants/theme";
-import { MOCK_TRANSACTIONS } from "@/data/transactions";
+import Skeleton from "@/components/atoms/Skeleton";
+import { Typography } from "@/components/atoms/Typography";
+import { ThemeColors } from "@/constants/theme";
+import { useTransactions } from "@/queries/useTransactions";
+import { transactionsListStyles } from "@/styles/home";
 import { Transaction, TransactionsListProps } from "@/types/transaction";
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+  getTransactionIcon,
+  getTransactionIconBg,
+  getTransactionIconColor,
+} from "@/utils";
+import { Ionicons } from "@expo/vector-icons";
+import { LegendList } from "@legendapp/list";
+import React from "react";
+import { Pressable, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-const getTransactionIcon = (type: Transaction["type"]) => {
-  switch (type) {
-    case "send":
-      return "arrow-up";
-    case "receive":
-      return "arrow-down";
-    case "swap":
-      return "swap-horizontal";
-    default:
-      return "ellipse";
-  }
+const TransactionSkeleton = () => (
+  <View style={transactionsListStyles.transactionItem}>
+    <Skeleton width={40} height={40} borderRadius={20} />
+    <View style={[transactionsListStyles.transactionInfo, { marginLeft: 12 }]}>
+      <Skeleton width={120} height={16} style={{ marginBottom: 6 }} />
+      <Skeleton width={80} height={12} />
+    </View>
+    <View style={transactionsListStyles.transactionAmount}>
+      <Skeleton width={60} height={16} style={{ marginBottom: 6 }} />
+      <Skeleton width={40} height={12} />
+    </View>
+  </View>
+);
+
+const TransactionListEmptyState = () => {
+  return (
+    <View style={transactionsListStyles.emptyState}>
+      <Ionicons name="receipt-outline" size={48} color={ThemeColors.border} />
+      <Typography
+        variant="bodyBold"
+        size="lg"
+        color="textSecondary"
+        style={{ marginTop: 16, marginBottom: 4 }}
+      >
+        No transactions yet
+      </Typography>
+      <Typography variant="body" color="textMuted">
+        Your transaction history will appear here
+      </Typography>
+    </View>
+  );
 };
 
-const getTransactionIconBg = (type: Transaction["type"]) => {
-  switch (type) {
-    case "send":
-      return "#FEE2E2";
-    case "receive":
-      return "#D1FAE5";
-    case "swap":
-      return "#FEF3C7";
-    default:
-      return ThemeColors.borderLight;
-  }
-};
-
-const getTransactionIconColor = (type: Transaction["type"]) => {
-  switch (type) {
-    case "send":
-      return "#DC2626";
-    case "receive":
-      return "#059669";
-    case "swap":
-      return "#D97706";
-    default:
-      return ThemeColors.textMuted;
-  }
-};
-
-const TransactionItem = ({ item }: { item: Transaction }) => (
-  <TouchableOpacity style={styles.transactionItem} activeOpacity={0.7}>
+const TransactionItem = ({
+  item,
+  onPress,
+}: {
+  item: Transaction;
+  onPress?: () => void;
+}) => (
+  <Pressable style={transactionsListStyles.transactionItem} onPress={onPress}>
     <View
       style={[
-        styles.transactionIcon,
+        transactionsListStyles.transactionIcon,
         { backgroundColor: getTransactionIconBg(item.type) },
       ]}
     >
@@ -65,153 +68,79 @@ const TransactionItem = ({ item }: { item: Transaction }) => (
         color={getTransactionIconColor(item.type)}
       />
     </View>
-    <View style={styles.transactionInfo}>
-      <Text style={styles.transactionTitle}>{item.title}</Text>
-      <Text style={styles.transactionSubtitle}>{item.subtitle}</Text>
+    <View style={transactionsListStyles.transactionInfo}>
+      <Typography
+        variant="bodyBold"
+        size="md"
+        color="text"
+        style={{ marginBottom: 2 }}
+        text={item.title}
+      />
+      <Typography variant="caption" color="textMuted" text={item.subtitle} />
     </View>
-    <View style={styles.transactionAmount}>
-      <Text
-        style={[
-          styles.amountText,
-          item.isPositive ? styles.amountPositive : styles.amountNegative,
-        ]}
-      >
-        {item.amount}
-      </Text>
-      <Text style={styles.dateText}>{item.date}</Text>
+    <View style={transactionsListStyles.transactionAmount}>
+      <Typography
+        variant="bodyBold"
+        size="md"
+        color={item.isPositive ? "success" : "text"}
+        style={{ marginBottom: 2 }}
+        text={item.amount + " MOVE"}
+      />
+      <Typography variant="caption" color="textMuted" text={item.date} />
     </View>
-  </TouchableOpacity>
+  </Pressable>
 );
 
+
+
 const TransactionsList: React.FC<TransactionsListProps> = ({
-  transactions = MOCK_TRANSACTIONS,
   delay = 200,
+  walletAddress,
+  onTransactionPress,
+  showHeader = true,
 }) => {
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Ionicons name="receipt-outline" size={48} color={ThemeColors.border} />
-      <Text style={styles.emptyTitle}>No transactions yet</Text>
-      <Text style={styles.emptySubtitle}>
-        Your transaction history will appear here
-      </Text>
-    </View>
-  );
+  const { data: txData, isLoading, isFetching } = useTransactions(walletAddress);
+
+  const showSkeleton = isLoading || (isFetching && !txData);
 
   return (
-    <Animated.View entering={FadeInDown.delay(delay)} style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Recent Activity</Text>
-        <TouchableOpacity activeOpacity={0.7}>
-          <Text style={styles.seeAllText}>See All</Text>
-        </TouchableOpacity>
-      </View>
+    <Animated.View
+      entering={FadeInDown.delay(delay)}
+      style={transactionsListStyles.container}
+    >
+      {showHeader && (
+        <View style={transactionsListStyles.header}>
+          <Typography variant="h4" color="text" text="Recent Activity" />
+        </View>
+      )}
 
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <TransactionItem item={item} />}
-        ListEmptyComponent={renderEmptyState}
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={false}
-        contentContainerStyle={
-          transactions.length === 0 ? styles.emptyContainer : undefined
-        }
-      />
+      {showSkeleton ? (
+        Array.from({ length: 7 }).map((_, i) => (
+          <TransactionSkeleton key={"transaction-skeleton-" + i} />
+        ))
+      ) : (
+        <LegendList
+          data={txData || []}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TransactionItem
+              item={item}
+              onPress={() => onTransactionPress?.(item)}
+            />
+          )}
+          ListEmptyComponent={<TransactionListEmptyState />}
+          scrollEnabled={false}
+          estimatedItemSize={76}
+          style={{ width: "100%" }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </Animated.View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  headerTitle: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 18,
-    color: ThemeColors.text,
-  },
-  seeAllText: {
-    fontFamily: Fonts.brandMedium,
-    fontSize: 14,
-    color: ThemeColors.primaryDark,
-  },
-  transactionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: ThemeColors.surface,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: ThemeColors.borderLight,
-  },
-  transactionIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 14,
-  },
-  transactionInfo: {
-    flex: 1,
-  },
-  transactionTitle: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 15,
-    color: ThemeColors.text,
-    marginBottom: 2,
-  },
-  transactionSubtitle: {
-    fontFamily: Fonts.brand,
-    fontSize: 13,
-    color: ThemeColors.textMuted,
-  },
-  transactionAmount: {
-    alignItems: "flex-end",
-  },
-  amountText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 15,
-    marginBottom: 2,
-  },
-  amountPositive: {
-    color: ThemeColors.success,
-  },
-  amountNegative: {
-    color: ThemeColors.text,
-  },
-  dateText: {
-    fontFamily: Fonts.brand,
-    fontSize: 12,
-    color: ThemeColors.textMuted,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  emptyTitle: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 16,
-    color: ThemeColors.text,
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  emptySubtitle: {
-    fontFamily: Fonts.brand,
-    fontSize: 14,
-    color: ThemeColors.textMuted,
-  },
-  emptyContainer: {
-    flex: 1,
-  },
-});
+
+
+
 
 export default TransactionsList;

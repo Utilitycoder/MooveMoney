@@ -32,6 +32,14 @@ export default function ProtectedLayout() {
             animation: "slide_from_bottom",
           }}
         />
+        <Stack.Screen
+          name="transaction-details"
+          options={{
+            gestureEnabled: true,
+            presentation: "card",
+            animation: "slide_from_right",
+          }}
+        />
       </Stack>
     </AuthBoundary>
   );

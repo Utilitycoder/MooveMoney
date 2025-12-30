@@ -1,4 +1,3 @@
-import { mockService, processVoiceMessage } from "@/services/voiceChatService";
 import {
   UseVoiceChatProps,
   UseVoiceChatReturn,
@@ -13,14 +12,11 @@ import {
   useAudioRecorder,
   useAudioRecorderState,
 } from "expo-audio";
+import { useVoiceAnimations } from "./useVoiceAnimations";
+import { useVoiceProcessor } from "./useVoiceProcessing";
+
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Easing,
-  useSharedValue,
-  withRepeat,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
+
 
 const recordingOptions: RecordingOptions = {
   ...RecordingPresets.HIGH_QUALITY,
@@ -33,10 +29,10 @@ export const useVoiceChat = ({
 }: UseVoiceChatProps = {}): UseVoiceChatReturn => {
   // State
   const [state, setState] = useState<VoiceChatState>("idle");
-  const [messages, setMessages] = useState<VoiceChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [isInConversation, setIsInConversation] = useState(false);
+  const [messages, setMessages] = useState<VoiceChatMessage[]>([]);
 
   // Refs
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -46,61 +42,18 @@ export const useVoiceChat = ({
   // Audio hooks
   const audioRecorder = useAudioRecorder(recordingOptions);
   const audioRecorderState = useAudioRecorderState(audioRecorder, 100);
-
-  // Animation values
-  const pulseAnim = useSharedValue(0);
-  const glowAnim = useSharedValue(0);
-  const micScale = useSharedValue(1);
-  const audioLevel = useSharedValue(0);
-
-  // Track recording state from recorder
   const isRecording = audioRecorderState.isRecording;
 
-  // React to metering changes for audio visualization
-  useEffect(() => {
-    if (audioRecorderState.isRecording) {
-      const metering = audioRecorderState.metering ?? -160;
-      const normalizedLevel = Math.max(0, Math.min(1, (metering + 45) / 45));
+  // Animations
+  const {
+    animations: { pulseAnim, glowAnim, micScale, audioLevel },
+    startRecordingAnimation,
+    stopRecordingAnimation,
+  } = useVoiceAnimations(audioRecorderState);
 
-      audioLevel.value = withSpring(normalizedLevel, {
-        damping: 12,
-        stiffness: 150,
-        mass: 0.5,
-      });
+  // Processor
+  const { transcribe, getAIResponse } = useVoiceProcessor({ useMockService });
 
-      micScale.value = withSpring(1 + normalizedLevel * 0.25, {
-        damping: 12,
-        stiffness: 150,
-      });
-    }
-  }, [
-    audioRecorderState.metering,
-    audioRecorderState.isRecording,
-    audioLevel,
-    micScale,
-  ]);
-
-  // Start recording animation
-  const startRecordingAnimation = useCallback(() => {
-    pulseAnim.value = withRepeat(
-      withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-    glowAnim.value = withRepeat(
-      withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true
-    );
-  }, [pulseAnim, glowAnim]);
-
-  // Stop recording animation
-  const stopRecordingAnimation = useCallback(() => {
-    pulseAnim.value = withTiming(0, { duration: 300 });
-    glowAnim.value = withTiming(0, { duration: 300 });
-    micScale.value = withTiming(1, { duration: 200 });
-    audioLevel.value = withTiming(0, { duration: 200 });
-  }, [pulseAnim, glowAnim, micScale, audioLevel]);
 
   // Internal start recording function
   const beginRecording = useCallback(async () => {
@@ -180,26 +133,28 @@ export const useVoiceChat = ({
       lastAudioUriRef.current = uri;
       setState("processing");
 
-      // Process the voice message
-      const service = useMockService ? mockService : { processVoiceMessage };
-
       try {
-        const { transcription, aiResponse } = await service.processVoiceMessage(
-          uri,
-          messages.map((m) => ({ role: m.role, content: m.content }))
-        );
+        // 1. Transcribe (Granular step)
+        const { transcription, base64Audio } = await transcribe(uri);
 
-        // Add user message with transcription
+        // Create and add user message immediately
         const userMessage: VoiceChatMessage = {
           id: Date.now().toString(),
           role: "user",
           content: transcription,
           timestamp: new Date(),
           audioUri: uri,
+          audioBase64: base64Audio,
           isVoiceInput: true,
         };
+        
+        setMessages((prev) => [...prev, userMessage]);
+        setState("responding"); // Indicate AI is preparing response
 
-        // Add AI response
+        // 2. Get AI Response (Granular step)
+        const aiResponse = await getAIResponse(transcription, messages);
+
+        // Create AI response message
         const aiMessage: VoiceChatMessage = {
           id: (Date.now() + 1).toString(),
           role: "assistant",
@@ -207,7 +162,7 @@ export const useVoiceChat = ({
           timestamp: new Date(),
         };
 
-        setMessages((prev) => [...prev, userMessage, aiMessage]);
+        setMessages((prev) => [...prev, aiMessage]);
 
         // Check for transaction intent
         if (
@@ -220,6 +175,12 @@ export const useVoiceChat = ({
           shouldContinueConversation.current = false;
           setIsInConversation(false);
           setState("idle");
+          return;
+        }
+
+        // Check for end conversation action
+        if (aiResponse.isEndConversation) {
+          endConversation();
           return;
         }
 
@@ -241,7 +202,6 @@ export const useVoiceChat = ({
           err instanceof Error ? err.message : "Failed to process voice message"
         );
         setState("error");
-        // On error, pause conversation but don't end it
         if (isInConversation) {
           setState("listening");
         }
@@ -253,13 +213,13 @@ export const useVoiceChat = ({
     }
   }, [
     audioRecorder,
-    audioRecorderState.isRecording,
     beginRecording,
     isInConversation,
     messages,
+    useMockService,
     onTransactionDetected,
     stopRecordingAnimation,
-    useMockService,
+    audioRecorderState.isRecording,
   ]);
 
   // End conversation - stops the continuous mode
@@ -304,21 +264,27 @@ export const useVoiceChat = ({
     setError(null);
 
     try {
-      const service = useMockService ? mockService : { processVoiceMessage };
-      const { transcription, aiResponse } = await service.processVoiceMessage(
-        lastAudioUriRef.current,
-        messages.map((m) => ({ role: m.role, content: m.content }))
-      );
+      // 1. Transcribe (Granular step)
+      const { transcription, base64Audio } = await transcribe(lastAudioUriRef.current);
 
+      // Create and add user message immediately
       const userMessage: VoiceChatMessage = {
         id: Date.now().toString(),
         role: "user",
         content: transcription,
         timestamp: new Date(),
         audioUri: lastAudioUriRef.current,
+        audioBase64: base64Audio,
         isVoiceInput: true,
       };
+      
+      setMessages((prev) => [...prev, userMessage]);
+      setState("responding"); // Indicate AI is preparing response
 
+      // 2. Get AI Response (Granular step)
+      const aiResponse = await getAIResponse(transcription, messages);
+
+      // Create AI response message
       const aiMessage: VoiceChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -326,7 +292,7 @@ export const useVoiceChat = ({
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, userMessage, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
 
       if (
         aiResponse.isSendIntent &&
@@ -336,6 +302,12 @@ export const useVoiceChat = ({
         onTransactionDetected(aiResponse.transaction);
         setIsInConversation(false);
         setState("idle");
+        return;
+      }
+
+      // Check for end conversation action
+      if (aiResponse.isEndConversation) {
+        endConversation();
         return;
       }
 
@@ -374,6 +346,11 @@ export const useVoiceChat = ({
     };
   }, []);
 
+  // Add message manually
+  const addMessage = useCallback((message: VoiceChatMessage) => {
+    setMessages((prev) => [...prev, message]);
+  }, []);
+
   return {
     state,
     messages,
@@ -392,5 +369,6 @@ export const useVoiceChat = ({
     endConversation,
     clearMessages,
     retryLastMessage,
+    addMessage,
   };
 };

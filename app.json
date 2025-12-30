@@ -17,7 +17,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.pragmaticaweds.moovemoney",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSFaceIDUsageDescription": "MooveMoney uses faceId to verify identity before approving transactions.",
+        "NSMicrophoneUsageDescription": "MooveMoney uses microphone to record voice commands for transactions."
       }
     },
     "android": {
@@ -69,6 +71,12 @@
         "expo-audio",
         {
           "microphonePermission": "Allow MooveMoney to access your microphone for voice commands."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
         }
       ]
     ],

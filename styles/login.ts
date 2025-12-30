@@ -10,7 +10,8 @@ export const loginStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: 20,
+    minHeight: 0,
   },
   logoSection: {
     marginBottom: 28,
@@ -22,6 +23,8 @@ export const loginStyles = StyleSheet.create({
   titleSection: {
     alignItems: "center",
     marginBottom: 12,
+    width: "100%",
+    paddingHorizontal: 16,
   },
   title: {
     fontFamily: Fonts.brand,
@@ -42,6 +45,7 @@ export const loginStyles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 24,
+    paddingHorizontal: 20,
   },
   featurePills: {
     flexDirection: "row",
@@ -64,9 +68,11 @@ export const loginStyles = StyleSheet.create({
     fontFamily: Fonts.brandMedium,
     fontSize: 12,
     color: ThemeColors.textSecondary,
+    flexShrink: 1,
   },
   bottomSection: {
     paddingHorizontal: 24,
+    minHeight: 0,
   },
   googleButton: {
     flexDirection: "row",
@@ -74,12 +80,12 @@ export const loginStyles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: ThemeColors.text,
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderRadius: 14,
     gap: 10,
   },
   googleButtonText: {
     fontFamily: Fonts.brandBold,
-    fontSize: 16,
     color: ThemeColors.surface,
     letterSpacing: -0.2,
   },
@@ -112,6 +118,8 @@ export const loginStyles = StyleSheet.create({
     gap: 8,
     marginTop: 24,
     marginBottom: 16,
+    paddingHorizontal: 8,
+    flexWrap: "wrap",
   },
   securityDot: {
     width: 6,
@@ -123,6 +131,8 @@ export const loginStyles = StyleSheet.create({
     fontFamily: Fonts.brand,
     fontSize: 12,
     color: ThemeColors.textMuted,
+    flexShrink: 1,
+    flexWrap: "wrap",
   },
   terms: {
     fontFamily: Fonts.brand,
@@ -130,8 +140,29 @@ export const loginStyles = StyleSheet.create({
     color: ThemeColors.textMuted,
     textAlign: "center",
     lineHeight: 18,
+    flexShrink: 1,
+    flexWrap: "wrap",
   },
   termsLink: {
-    color: ThemeColors.primaryDark,
+    color: ThemeColors.primary,
+    fontFamily: Fonts.brandMedium,
+  },
+  poweredByContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  partnerLogo: {
+    height: 30,
+    width: 80,
+  },
+  logoDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: ThemeColors.border,
+    opacity: 0.3,
   },
 });

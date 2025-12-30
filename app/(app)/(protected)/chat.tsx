@@ -2,14 +2,21 @@ import ChatBubble from "@/components/screens/chat/ChatBubble";
 import ChatHeader from "@/components/screens/chat/ChatHeader";
 import ChatInput from "@/components/screens/chat/ChatInput";
 import EmptyChat from "@/components/screens/chat/EmptyChat";
-import TransactionApprovalModal from "@/components/screens/chat/TransactionApprovalModal";
-import { getAIResponse } from "@/data/chat";
+import TransactionFlowModal from "@/components/screens/chat/TransactionFlowModal";
+import { useTransactionFlow } from "@/hooks/useTransactionFlow";
+import { getChatResponse } from "@/services/chatService";
+import { useChatStore } from "@/stores/chatStore";
+import { useContactsStore } from "@/stores/contactsStore";
 import { chatStyles } from "@/styles/chat";
-import { ChatMessage, TransactionDetails } from "@/types/chat";
+import { ChatMessage } from "@/types/chat";
+import { LegendList, LegendListRef } from "@legendapp/list";
+import { usePrivy } from "@privy-io/expo";
+import { useSignRawHash } from "@privy-io/expo/extended-chains";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
-import React, { useRef, useState } from "react";
-import { FlatList, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View } from "react-native";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
 import Animated, {
   useAnimatedStyle,
@@ -34,15 +41,76 @@ const useGradualAnimation = () => {
 
 export default function ChatScreen() {
   const router = useRouter();
+  const { user } = usePrivy();
   const insets = useSafeAreaInsets();
-  const flatListRef = useRef<FlatList>(null);
+  const legendListRef = useRef<LegendListRef | null>(null);
+  const addContact = useContactsStore((state) => state.addContact);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [pendingTransaction, setPendingTransaction] =
-    useState<TransactionDetails | null>(null);
+  // Use chatStore for messages and conversation state
+  const {
+    messages,
+    addMessage,
+    clearMessages,
+    conversationId,
+    setConversationId,
+    conversationHistory,
+    setConversationHistory,
+    setIsWaitingForResponse,
+  } = useChatStore();
+  
+
+
+
+  // Use reusable transaction flow hook
+  const {
+    transactionState,
+    isApproving,
+    handleApprove: handleTransactionApprove,
+    handleReject: handleTransactionReject,
+    handleViewDetails,
+    handleTryAgain,
+    resetTransactionState,
+    setTransaction,
+  } = useTransactionFlow({
+    onSuccess: (result, details) => {
+      // Add success message to chat
+      addMessage({
+        id: `${Date.now()}-success`,
+        role: "assistant",
+        content: `✅ Transaction completed! ${details.amount} MOVE has been sent successfully.`,
+        timestamp: new Date(),
+      });
+    },
+    onReject: () => {
+      // Add a cancellation message to chat
+      addMessage({
+        id: Date.now().toString(),
+        role: "assistant",
+        content:
+          "Transaction cancelled. Is there anything else I can help you with?",
+        timestamp: new Date(),
+      });
+    },
+    onBiometricError: (status) => {
+      const biometricErrors: Record<string, string> = {
+        not_available:
+          "Biometric authentication is not available on this device. Please enable it in your device settings.",
+        cancelled: "Transaction cancelled.",
+        failed: "Biometric authentication failed. Please try again.",
+      };
+
+      const errorContent = biometricErrors[status];
+
+      if (errorContent) {
+        addMessage({
+          id: `${Date.now()}-biometric-${status}`,
+          role: "assistant",
+          content: errorContent,
+          timestamp: new Date(),
+        });
+      }
+    },
+  });
 
   const { height } = useGradualAnimation();
 
@@ -51,6 +119,16 @@ export default function ChatScreen() {
       height: Math.abs(height.value),
     };
   }, []);
+
+  const isLoading = useChatStore((state) => state.isWaitingForResponse);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      legendListRef.current?.scrollToEnd({ animated: true });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [messages]);
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -61,31 +139,34 @@ export default function ChatScreen() {
   };
 
   const handleClear = () => {
-    setMessages([]);
+    clearMessages();
   };
 
-  const handleSend = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSend = async (message: string) => {
+    const messageContent = message.trim();
+
+    if (!messageContent || isLoading) return;
+
+    // Set loading state immediately for better UX
+    setIsWaitingForResponse(true);
 
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
       role: "user",
-      content: inputValue.trim(),
       timestamp: new Date(),
+      content: messageContent,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
-    setIsLoading(true);
+    // Add user message to store immediately (synchronous)
+    addMessage(userMessage);
 
-    // Scroll to bottom
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-
-    // Simulate AI response (replace with actual AI call)
-    setTimeout(() => {
-      const response = getAIResponse(userMessage.content);
+    try {
+      // Call the real API
+      const response = await getChatResponse(
+        messageContent,
+        conversationHistory.length > 0 ? conversationHistory : undefined,
+        conversationId
+      );
 
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -94,118 +175,99 @@ export default function ChatScreen() {
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, aiResponse]);
+      // Add AI response to store
+      addMessage(aiResponse);
 
-      setIsLoading(false);
-
-      // Check if response indicates a send intent
-      if (response.isSendIntent && response.transaction) {
-        // Set transaction first, then show modal after a brief delay
-        setPendingTransaction(response.transaction);
-
-        setTimeout(() => {
-          setShowTransactionModal(true);
-        }, 500);
+      // Update conversation state from API response
+      if (response.conversationId) {
+        setConversationId(response.conversationId);
       }
 
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    }, 1000);
+      // Always use the conversation history returned from the API response
+      // The service handles building it correctly whether API returns it or not
+      if (response.conversationHistory) {
+        setConversationHistory(response.conversationHistory);
+      }
+
+      setIsWaitingForResponse(false);
+
+      // Check if response indicates a send intent
+      if (response?.isSendIntent && response?.transaction) {
+        // Set transaction and show approval modal after a brief delay
+        setTimeout(() => {
+          setTransaction(response.transaction!);
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Chat API error:", error);
+      setIsWaitingForResponse(false);
+
+      // Show a friendly error message to the user
+      const errorMessage: ChatMessage = {
+        id: `${Date.now()}-error`,
+        role: "assistant",
+        content:
+          "I'm having trouble connecting right now. Please try again in a moment. 😊",
+        timestamp: new Date(),
+      };
+
+      addMessage(errorMessage);
+    }
   };
 
   const handleSuggestionPress = (suggestion: string) => {
-    setInputValue(suggestion);
+    // Send the suggestion directly as a message
+    handleSend(suggestion);
   };
-
-  const handleTransactionApprove = () => {
-    // Add a confirmation message to chat
-    const confirmMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "assistant",
-      content: "Transaction approved! Your payment is being processed.",
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, confirmMessage]);
-    setPendingTransaction(null);
-
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  };
-
-  const handleTransactionReject = () => {
-    // Add a cancellation message to chat
-    const cancelMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "assistant",
-      content:
-        "Transaction cancelled. Is there anything else I can help you with?",
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, cancelMessage]);
-    setPendingTransaction(null);
-
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  };
-
-  // console.log(
-  //   new Date().toLocaleDateString("en-US", {
-  //     year: "numeric",
-  //     month: "long",
-  //     day: "numeric",
-  //   })
-  // );
 
   return (
     <View style={[chatStyles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <ChatHeader onBack={handleBack} onClear={handleClear} />
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, marginTop: 1 }}>
         {/* Chat Content */}
 
         {messages.length === 0 ? (
           <EmptyChat onSuggestionPress={handleSuggestionPress} />
         ) : (
-          <FlatList
-            ref={flatListRef}
+          <LegendList
+            ref={legendListRef}
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
               <ChatBubble message={item} index={index} />
             )}
-            contentContainerStyle={chatStyles.messagesList}
+            contentContainerStyle={[
+              chatStyles.messagesList,
+              { paddingBottom: 0 },
+            ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           />
         )}
 
-        <ChatInput
-          value={inputValue}
-          onChangeText={setInputValue}
-          onSend={handleSend}
-          isLoading={isLoading}
-        />
+        <ChatInput onSend={handleSend} />
       </View>
 
-      {/* Transaction Approval Modal */}
-      <TransactionApprovalModal
-        visible={showTransactionModal && !!pendingTransaction}
-        onClose={() => {
-          console.log("❌ Modal closed");
-          setShowTransactionModal(false);
-          setPendingTransaction(null);
-        }}
-        transaction={pendingTransaction}
+      {/* Unified Transaction Flow Modal */}
+      <TransactionFlowModal
+        visible={transactionState.uiState !== "idle"}
+        uiState={transactionState.uiState}
+        processingStage={transactionState.processingStage}
+        transaction={transactionState.pendingTransaction}
+        result={transactionState.result}
+        isApproving={isApproving}
+        onClose={resetTransactionState}
         onApprove={handleTransactionApprove}
         onReject={handleTransactionReject}
+        onTryAgain={handleTryAgain}
+        onViewDetails={handleViewDetails}
+        onSaveAddress={(address: string, name: string) => {
+          addContact(name, address);
+        }}
       />
 
       <Animated.View style={fakeView} />
     </View>
   );
 }
-
-// Response type for AI responses

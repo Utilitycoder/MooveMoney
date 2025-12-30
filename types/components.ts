@@ -8,6 +8,7 @@ export interface PrimaryButtonProps {
   icon?: keyof typeof Ionicons.glyphMap;
   disabled?: boolean;
   variant?: "dark" | "light";
+  loading?: boolean;
 }
 
 export interface IconButtonProps {
