@@ -45,7 +45,7 @@ export const voiceChatStyles = StyleSheet.create({
 
   // Messages list
   messagesList: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 5,
     paddingTop: 16,
     paddingBottom: 10,
   },
@@ -62,7 +62,7 @@ export const voiceChatStyles = StyleSheet.create({
   },
   messageBubble: {
     maxWidth: "80%",
-    paddingHorizontal: 16,
+    paddingHorizontal: 5,
     paddingVertical: 12,
     borderRadius: 20,
   },

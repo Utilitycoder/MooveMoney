@@ -38,6 +38,8 @@ const COLOR_MAP: Record<TypographyColor, string> = {
   success: ThemeColors.success,
   error: ThemeColors.error,
   surface: ThemeColors.surface,
+  background: ThemeColors.background,
+  white: ThemeColors.surface,
 };
 
 const VARIANT_STYLES: Record<
@@ -94,7 +96,6 @@ const Typography: React.FC<TypographyProps> = ({
     ...(align && { textAlign: align }),
     ...(letterSpacing !== undefined && { letterSpacing }),
     // Permanent fix for text chopping: minor horizontal buffer
-    paddingHorizontal: 2,
     // Android compatibility & consistency
     includeFontPadding: false,
     ...(wrap && { flexShrink: 1 }),

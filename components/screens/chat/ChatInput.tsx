@@ -24,8 +24,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
   const sendScale = useSharedValue(1);
   const inputRef = useRef<TextInput>(null);
   const [message, setMessage] = useState("");
-  const isLoading = useChatStore((state) => state.isWaitingForResponse);
   const [isFocused, setIsFocused] = useState(false);
+  const isLoading = useChatStore((state) => state.isWaitingForResponse);
 
   const canSend = message.trim().length > 0;
 

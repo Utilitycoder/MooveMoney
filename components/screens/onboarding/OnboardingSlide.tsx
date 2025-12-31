@@ -1,9 +1,10 @@
+import Typography from "@/components/atoms/Typography";
 import { ThemeColors } from "@/constants/theme";
 import { onboardingSlideStyles } from "@/styles/onboarding";
 import { OnboardingSlideProps } from "@/types/onboarding";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Dimensions, Text, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -62,16 +63,44 @@ const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
       </Animated.View>
 
       <Animated.View style={[onboardingSlideStyles.textContainer, textOpacity]}>
-        <Text style={onboardingSlideStyles.title}>
+        {/* <Text style={onboardingSlideStyles.title}>
           {item.title}
           {"\n"}
           <Text style={onboardingSlideStyles.highlightedTitle}>
             {item.highlightedText}
           </Text>
-        </Text>
-        <Text style={onboardingSlideStyles.description}>
+        </Text> */}
+
+        <Typography
+          text={item.title}
+          size="4xl"
+          weight="bold"
+          color="text"
+          align="center"
+          lineHeight={1.4}
+          lines={0}
+        />
+
+        <Typography
+          text={item.highlightedText}
+          size="4xl"
+          weight="bold"
+          color="primaryDark"
+          align="center"
+          lines={0}
+        />
+
+        <Typography
+          text={item.description}
+          size="base"
+          weight="regular"
+          color="textSecondary"
+          align="center"
+          lines={0}
+        />
+        {/* <Text style={onboardingSlideStyles.description}>
           {item.description}
-        </Text>
+        </Text> */}
       </Animated.View>
     </View>
   );

@@ -4,11 +4,15 @@ import { getMarkdownStyle } from "@/styles/markDownStyle";
 import { ChatBubbleProps } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import Markdown from "react-native-markdown-display";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-const ChatBubble: React.FC<ChatBubbleProps> = ({ message, index }) => {
+const ChatBubble: React.FC<ChatBubbleProps> = ({
+  message,
+  index,
+  userInitials,
+}) => {
   const isUser = message.role === "user";
 
   return (
@@ -39,7 +43,19 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, index }) => {
       {/* User Avatar */}
       {isUser && (
         <View style={chatBubbleStyles.avatarUser}>
-          <Ionicons name="person" size={14} color={ThemeColors.surface} />
+          {userInitials ? (
+            <Text
+              style={{
+                color: ThemeColors.surface,
+                fontSize: 10,
+                fontWeight: "bold",
+              }}
+            >
+              {userInitials}
+            </Text>
+          ) : (
+            <Ionicons name="person" size={14} color={ThemeColors.surface} />
+          )}
         </View>
       )}
     </Animated.View>

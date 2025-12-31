@@ -10,8 +10,6 @@ export const loginStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
-    minHeight: 0,
   },
   logoSection: {
     marginBottom: 28,
@@ -80,7 +78,6 @@ export const loginStyles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: ThemeColors.text,
     paddingVertical: 16,
-    paddingHorizontal: 20,
     borderRadius: 14,
     gap: 10,
   },

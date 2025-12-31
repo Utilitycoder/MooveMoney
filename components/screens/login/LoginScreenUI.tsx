@@ -43,6 +43,8 @@ function LoginScreenUI() {
 
       const idToken = await getIdentityToken();
 
+      console.log("idToken::: ", idToken);
+
       try {
         await loginUser(idToken || "");
       } catch (e) {

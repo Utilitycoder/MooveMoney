@@ -84,7 +84,7 @@ const VoiceChatHeader: React.FC<VoiceChatHeaderProps> = ({
     }
 
     return {
-      text: "Voice Chat",
+      text: "Moovemoney AI Assistant",
       color: ThemeColors.textSecondary,
       showDot: false,
     };

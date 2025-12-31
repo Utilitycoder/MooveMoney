@@ -7,20 +7,11 @@ export const onBoardingStyles = StyleSheet.create({
     backgroundColor: ThemeColors.background,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
     paddingVertical: 16,
+    paddingHorizontal: 24,
   },
   skipButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  skipText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 16,
-    color: ThemeColors.textSecondary,
+    alignSelf: "flex-end",
   },
   bottomSection: {
     paddingHorizontal: 24,
@@ -29,21 +20,15 @@ export const onBoardingStyles = StyleSheet.create({
   primaryButton: {
     backgroundColor: ThemeColors.text,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 18,
-    borderRadius: 16,
+    paddingVertical: 16,
+    borderRadius: 12,
     gap: 12,
   },
-  primaryButtonText: {
-    fontFamily: Fonts.brandBold,
-    fontSize: 17,
-    color: ThemeColors.background,
-  },
   buttonIconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 20,
+    height: 20,
+    borderRadius: 12,
     backgroundColor: ThemeColors.background,
     justifyContent: "center",
     alignItems: "center",
@@ -93,7 +78,7 @@ export const onboardingSlideStyles = StyleSheet.create({
   },
   textContainer: {
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 4,
   },
   title: {
     fontFamily: Fonts.brandBold,

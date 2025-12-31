@@ -22,7 +22,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onBack, onClear }) => {
         <View style={chatHeaderStyles.aiIcon}>
           <Ionicons name="sparkles" size={16} color={ThemeColors.text} />
         </View>
-        <Text style={chatHeaderStyles.title}>AI Assistant</Text>
+        <Text style={chatHeaderStyles.title}>Moovemoney AI Assistant</Text>
       </View>
 
       {/* Clear Button */}

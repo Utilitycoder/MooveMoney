@@ -78,6 +78,7 @@ export interface VoiceChatInputProps {
 export interface VoiceChatBubbleProps {
   message: VoiceChatMessage;
   index: number;
+  userInitials?: string;
 }
 
 export interface ProcessingIndicatorProps {

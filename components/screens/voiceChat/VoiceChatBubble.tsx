@@ -9,6 +9,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 const VoiceChatBubble: React.FC<VoiceChatBubbleProps> = ({
   message,
   index,
+  userInitials,
 }) => {
   const isUser = message.role === "user";
 
@@ -58,6 +59,26 @@ const VoiceChatBubble: React.FC<VoiceChatBubbleProps> = ({
           </Text>
         </View>
       </View>
+      {/* User avatar - Add this for user messages */}
+      {isUser && (
+        <View style={{ marginLeft: 8, alignSelf: "flex-end", marginBottom: 2 }}>
+          <View style={styles.avatar}>
+            {userInitials ? (
+              <Text
+                style={{
+                  color: ThemeColors.text,
+                  fontSize: 10,
+                  fontWeight: "bold",
+                }}
+              >
+                {userInitials}
+              </Text>
+            ) : (
+              <Ionicons name="person" size={12} color={ThemeColors.text} />
+            )}
+          </View>
+        </View>
+      )}
     </Animated.View>
   );
 };

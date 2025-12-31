@@ -38,7 +38,9 @@ export type TypographyColor =
   | "primaryDark"
   | "success"
   | "error"
-  | "surface";
+  | "surface"
+  | "background"
+  | "white";
 
 export interface TypographyProps extends TextProps {
   /**

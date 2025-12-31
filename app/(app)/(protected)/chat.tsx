@@ -11,8 +11,6 @@ import { chatStyles } from "@/styles/chat";
 import { ChatMessage } from "@/types/chat";
 import { LegendList, LegendListRef } from "@legendapp/list";
 import { usePrivy } from "@privy-io/expo";
-import { useSignRawHash } from "@privy-io/expo/extended-chains";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 import React, { useEffect, useRef } from "react";
@@ -57,9 +55,6 @@ export default function ChatScreen() {
     setConversationHistory,
     setIsWaitingForResponse,
   } = useChatStore();
-  
-
-
 
   // Use reusable transaction flow hook
   const {
@@ -235,7 +230,15 @@ export default function ChatScreen() {
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
-              <ChatBubble message={item} index={index} />
+              <ChatBubble
+                message={item}
+                index={index}
+                userInitials={
+                  (user as any)?.email?.address
+                    ?.substring(0, 2)
+                    .toUpperCase() || "U"
+                }
+              />
             )}
             contentContainerStyle={[
               chatStyles.messagesList,

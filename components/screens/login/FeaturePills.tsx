@@ -13,21 +13,27 @@ export function FeaturePills() {
     >
       <View style={loginStyles.pill}>
         <Ionicons name="sparkles" size={12} color={ThemeColors.primaryDark} />
-        <Typography variant="caption" color="textSecondary">
-          AI Assistant
-        </Typography>
+        <Typography
+          variant="caption"
+          color="textSecondary"
+          text="AI Assistant"
+        />
       </View>
       <View style={loginStyles.pill}>
         <Ionicons name="mic" size={12} color={ThemeColors.primaryDark} />
-        <Typography variant="caption" color="textSecondary">
-          Voice Commands
-        </Typography>
+        <Typography
+          variant="caption"
+          color="textSecondary"
+          text="Voice Commands"
+        />
       </View>
       <View style={loginStyles.pill}>
         <Ionicons name="flash" size={12} color={ThemeColors.primaryDark} />
-        <Typography variant="caption" color="textSecondary">
-          Instant Transfers
-        </Typography>
+        <Typography
+          variant="caption"
+          color="textSecondary"
+          text="Instant Transfers"
+        />
       </View>
     </Animated.View>
   );

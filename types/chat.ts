@@ -113,6 +113,7 @@ export interface ChatHeaderProps {
 export interface ChatBubbleProps {
   message: ChatMessage;
   index: number;
+  userInitials?: string;
 }
 
 export interface TransactionDetails {

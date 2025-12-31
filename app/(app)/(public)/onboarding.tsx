@@ -1,3 +1,4 @@
+import Typography from "@/components/atoms/Typography";
 import PaginationDots from "@/components/molecules/PaginationDots";
 import OnboardingSlide from "@/components/screens/onboarding/OnboardingSlide";
 import { ThemeColors } from "@/constants/theme";
@@ -7,14 +8,7 @@ import { onBoardingStyles } from "@/styles/onboarding";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Dimensions,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewToken,
-} from "react-native";
+import { Dimensions, FlatList, Pressable, View, ViewToken } from "react-native";
 import Animated, {
   FadeInDown,
   useAnimatedScrollHandler,
@@ -99,13 +93,14 @@ export default function OnboardingScreen() {
     <View style={[onBoardingStyles.container, { paddingTop: insets.top }]}>
       {/* Skip Button */}
       <View style={onBoardingStyles.header}>
-        <View />
-        <TouchableOpacity
-          onPress={handleSkip}
-          style={onBoardingStyles.skipButton}
-        >
-          <Text style={onBoardingStyles.skipText}>Skip</Text>
-        </TouchableOpacity>
+        <Pressable onPress={handleSkip} style={onBoardingStyles.skipButton}>
+          <Typography
+            text="Skip"
+            size="base"
+            weight="bold"
+            color="textSecondary"
+          />
+        </Pressable>
       </View>
 
       {/* Slides */}
@@ -148,22 +143,24 @@ export default function OnboardingScreen() {
 
         {/* Action Button */}
         <Animated.View style={buttonAnimatedStyle}>
-          <TouchableOpacity
+          <Pressable
             style={onBoardingStyles.primaryButton}
             onPress={handleNext}
-            activeOpacity={0.85}
           >
-            <Text style={onBoardingStyles.primaryButtonText}>
-              {isLastSlide ? "Get Started" : "Continue"}
-            </Text>
+            <Typography
+              text={isLastSlide ? "Get Started" : "Continue"}
+              size="base"
+              weight="bold"
+              color="surface"
+            />
             <View style={onBoardingStyles.buttonIconContainer}>
               <Ionicons
                 name="arrow-forward"
-                size={20}
+                size={15}
                 color={ThemeColors.text}
               />
             </View>
-          </TouchableOpacity>
+          </Pressable>
         </Animated.View>
       </Animated.View>
     </View>

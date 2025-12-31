@@ -5,7 +5,7 @@ export const ONBOARDING_SLIDES: OnboardingSlideData[] = [
     id: "1",
     icon: "chatbubble-ellipses",
     iconBgColor: "#FEF3C7",
-    title: "Your Wallet,",
+    title: "Your Wallet",
     highlightedText: "Your Voice",
     description:
       "Send and manage your MOVE using simple voice natural language. No complex interfaces.",

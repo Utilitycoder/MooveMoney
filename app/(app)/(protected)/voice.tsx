@@ -8,10 +8,9 @@ import { useTransactionFlow } from "@/hooks/useTransactionFlow";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
 import { useContactsStore } from "@/stores/contactsStore";
 import { voiceChatStyles as styles } from "@/styles/voiceChat";
-import {
-  TransactionDetails
-} from "@/types/chat";
+import { TransactionDetails } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
+import { usePrivy } from "@privy-io/expo";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -21,21 +20,25 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function VoiceChatScreen() {
   const router = useRouter();
+  const { user } = usePrivy();
   const insets = useSafeAreaInsets();
   const legendListRef = useRef<LegendListRef>(null);
   const addContact = useContactsStore((state) => state.addContact);
 
-  
+  const setTransactionRef = useRef<
+    ((transaction: TransactionDetails) => void) | null
+  >(null);
 
-  const setTransactionRef = useRef<((transaction: TransactionDetails) => void) | null>(null);
-
-  const handleTransactionDetected = useCallback((transaction: TransactionDetails) => {
-    setTimeout(() => {
-      if (setTransactionRef.current) {
-        setTransactionRef.current(transaction);
-      }
-    }, 500);
-  }, []);
+  const handleTransactionDetected = useCallback(
+    (transaction: TransactionDetails) => {
+      setTimeout(() => {
+        if (setTransactionRef.current) {
+          setTransactionRef.current(transaction);
+        }
+      }, 500);
+    },
+    []
+  );
 
   const {
     state,
@@ -107,13 +110,13 @@ export default function VoiceChatScreen() {
     },
   });
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        legendListRef.current?.scrollToEnd({ animated: true });
-      }, 50);
-  
-      return () => clearTimeout(timer);
-    }, [messages]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      legendListRef.current?.scrollToEnd({ animated: true });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [messages]);
 
   // Connect the ref to the hook's setTransaction
   useEffect(() => {
@@ -147,7 +150,7 @@ export default function VoiceChatScreen() {
       />
 
       {/* Content */}
-      <View style={{ flex: 1, marginTop:1 }}>
+      <View style={{ flex: 1, marginTop: 1 }}>
         {showEmptyState ? (
           <EmptyVoiceChat />
         ) : (
@@ -156,13 +159,18 @@ export default function VoiceChatScreen() {
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={({ item, index }) => (
-              <VoiceChatBubble message={item} index={index} />
+              <VoiceChatBubble
+                message={item}
+                index={index}
+                userInitials={
+                  (user as any)?.email?.address
+                    ?.substring(0, 2)
+                    .toUpperCase() || "U"
+                }
+              />
             )}
-          contentContainerStyle={[
-          styles.messagesList,
-          { paddingBottom: 0 },
-          ]}
-          showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.messagesList, { paddingBottom: 0 }]}
+            showsVerticalScrollIndicator={false}
           />
         )}
 
