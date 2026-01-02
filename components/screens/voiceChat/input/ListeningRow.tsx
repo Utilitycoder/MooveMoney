@@ -1,12 +1,8 @@
 import { voiceChatInputStyles } from "@/styles/voiceChat";
+import { ListeningRowProps } from "@/types/voiceChat";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-
-interface ListeningRowProps {
-  onEndConversation: () => void;
-  listeningStyle: any;
-}
 
 export const ListeningRow: React.FC<ListeningRowProps> = ({
   onEndConversation,

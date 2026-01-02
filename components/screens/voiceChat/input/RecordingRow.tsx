@@ -1,4 +1,5 @@
 import { voiceChatInputStyles } from "@/styles/voiceChat";
+import { RecordingRowProps } from "@/types/voiceChat";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
@@ -6,18 +7,6 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { WaveBar } from "./WaveBar";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-interface RecordingRowProps {
-  recordingDuration: number;
-  onStopRecording: () => void;
-  onEndConversation: () => void;
-  audioLevel: { value: number };
-  ring1Style: any;
-  ring2Style: any;
-  buttonAnimatedStyle: any;
-  handlePressIn: () => void;
-  handlePressOut: () => void;
-}
 
 export const RecordingRow: React.FC<RecordingRowProps> = ({
   recordingDuration,

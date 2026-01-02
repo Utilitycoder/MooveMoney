@@ -6,11 +6,12 @@ import VoiceChatInput from "@/components/screens/voiceChat/VoiceChatInput";
 import { ThemeColors } from "@/constants/theme";
 import { useTransactionFlow } from "@/hooks/useTransactionFlow";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
+import { useAppStore } from "@/stores/appStore";
 import { useContactsStore } from "@/stores/contactsStore";
 import { voiceChatStyles as styles } from "@/styles/voiceChat";
 import { TransactionDetails } from "@/types/chat";
+import { getUserInitials } from "@/utils/userUtils";
 import { Ionicons } from "@expo/vector-icons";
-import { usePrivy } from "@privy-io/expo";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -20,7 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function VoiceChatScreen() {
   const router = useRouter();
-  const { user } = usePrivy();
+  const { user } = useAppStore();
   const insets = useSafeAreaInsets();
   const legendListRef = useRef<LegendListRef>(null);
   const addContact = useContactsStore((state) => state.addContact);
@@ -162,11 +163,7 @@ export default function VoiceChatScreen() {
               <VoiceChatBubble
                 message={item}
                 index={index}
-                userInitials={
-                  (user as any)?.email?.address
-                    ?.substring(0, 2)
-                    .toUpperCase() || "U"
-                }
+                userInitials={getUserInitials(user)}
               />
             )}
             contentContainerStyle={[styles.messagesList, { paddingBottom: 0 }]}

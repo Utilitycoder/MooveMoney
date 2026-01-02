@@ -9,17 +9,20 @@ export function TitleSection() {
         entering={FadeInUp.delay(300).springify()}
         style={loginStyles.titleSection}
       >
-        <Typography variant="h3" color="textSecondary" align="center">
-          Sign in to
-        </Typography>
+        <Typography
+          variant="h3"
+          color="textSecondary"
+          align="center"
+          text="Sign in to"
+        />
+
         <Typography
           variant="h1"
           color="text"
           align="center"
           letterSpacing={-0.8}
-        >
-          MooveMoney
-        </Typography>
+          text="MooveMoney"
+        />
       </Animated.View>
 
       <Animated.View entering={FadeInUp.delay(400).springify()}>
@@ -28,10 +31,8 @@ export function TitleSection() {
           color="textMuted"
           align="center"
           style={loginStyles.subtitle}
-          lines={0}
-        >
-          Your AI-powered crypto wallet.{"\n"}Smart, secure, effortless.
-        </Typography>
+          text={`Your AI-powered crypto wallet.\nSmart, secure, effortless.`}
+        />
       </Animated.View>
     </>
   );

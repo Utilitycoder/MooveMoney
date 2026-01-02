@@ -11,10 +11,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ErrorMessage } from "./ErrorMessage";
 import { FeaturePills } from "./FeaturePills";
 import { GoogleLoginButton } from "./GoogleLoginButton";
-import { LogoSection } from "./LogoSection";
 import { SecurityBadge } from "./SecurityBadge";
 import { TermsText } from "./TermsText";
 import { TitleSection } from "./TitleSection";
+import { LogoSection } from "./LogoSection";
 
 function LoginScreenUI() {
   const router = useRouter();

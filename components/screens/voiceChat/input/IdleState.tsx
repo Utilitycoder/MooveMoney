@@ -1,5 +1,6 @@
 import { ThemeColors } from "@/constants/theme";
 import { voiceChatInputStyles } from "@/styles/voiceChat";
+import { IdleStateProps } from "@/types/voiceChat";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -7,13 +8,6 @@ import { Pressable, Text, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-interface IdleStateProps {
-  onStartConversation: () => void;
-  buttonAnimatedStyle: any;
-  handlePressIn: () => void;
-  handlePressOut: () => void;
-}
 
 export const IdleState: React.FC<IdleStateProps> = ({
   onStartConversation,

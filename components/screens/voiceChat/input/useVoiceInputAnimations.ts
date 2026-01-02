@@ -1,25 +1,20 @@
+import { UseVoiceInputAnimationsProps } from "@/types/voiceChat";
 import { useEffect } from "react";
 import {
-    Easing,
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withSpring,
-    withTiming,
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
-interface UseVoiceInputAnimationsProps {
-  isRecording: boolean;
-  state: string;
-  micScale: { value: number };
-}
-
 export const useVoiceInputAnimations = ({
-  isRecording,
   state,
   micScale,
+  isRecording,
 }: UseVoiceInputAnimationsProps) => {
   const pulseRing1 = useSharedValue(0);
   const pulseRing2 = useSharedValue(0);
@@ -73,11 +68,8 @@ export const useVoiceInputAnimations = ({
   };
 
   const buttonAnimatedStyle = useAnimatedStyle(() => {
-    const audioScale = interpolate(
-      micScale.value,
-      [1, 1.25],
-      [1, 1.06]
-    );
+    const audioScale = interpolate(micScale.value, [1, 1.25], [1, 1.06]);
+
     return {
       transform: [{ scale: buttonScale.value * audioScale }],
     };
@@ -85,13 +77,17 @@ export const useVoiceInputAnimations = ({
 
   const ring1Style = useAnimatedStyle(() => {
     const scale = interpolate(pulseRing1.value, [0, 1], [1, 1.8]);
+
     const opacity = interpolate(pulseRing1.value, [0, 0.3, 1], [0.5, 0.25, 0]);
+
     return { transform: [{ scale }], opacity };
   });
 
   const ring2Style = useAnimatedStyle(() => {
     const scale = interpolate(pulseRing2.value, [0, 1], [1, 1.6]);
+
     const opacity = interpolate(pulseRing2.value, [0, 0.3, 1], [0.3, 0.15, 0]);
+
     return { transform: [{ scale }], opacity };
   });
 

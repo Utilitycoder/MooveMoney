@@ -1,16 +1,9 @@
 import { voiceChatInputStyles } from "@/styles/voiceChat";
+import { VoiceChatWaveBarProps } from "@/types/voiceChat";
 import React from "react";
-import Animated, {
-    useAnimatedStyle,
-} from "react-native-reanimated";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
 
-interface WaveBarProps {
-  index: number;
-  totalBars: number;
-  audioLevel: { value: number };
-}
-
-export const WaveBar: React.FC<WaveBarProps> = ({
+export const WaveBar: React.FC<VoiceChatWaveBarProps> = ({
   index,
   totalBars,
   audioLevel,

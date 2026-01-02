@@ -84,3 +84,39 @@ export interface VoiceChatBubbleProps {
 export interface ProcessingIndicatorProps {
   state: VoiceChatState;
 }
+
+export interface IdleStateProps {
+  onStartConversation: () => void;
+  buttonAnimatedStyle: any;
+  handlePressIn: () => void;
+  handlePressOut: () => void;
+}
+
+export interface ListeningRowProps {
+  onEndConversation: () => void;
+  listeningStyle: any;
+}
+
+export interface RecordingRowProps {
+  ring1Style: any;
+  ring2Style: any;
+  buttonAnimatedStyle: any;
+  recordingDuration: number;
+  handlePressIn: () => void;
+  handlePressOut: () => void;
+  onStopRecording: () => void;
+  onEndConversation: () => void;
+  audioLevel: { value: number };
+}
+
+export interface UseVoiceInputAnimationsProps {
+  state: string;
+  isRecording: boolean;
+  micScale: { value: number };
+}
+
+export interface VoiceChatWaveBarProps {
+  index: number;
+  totalBars: number;
+  audioLevel: { value: number };
+}

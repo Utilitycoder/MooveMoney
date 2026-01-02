@@ -561,3 +561,73 @@ export const voiceChatInputStyles = StyleSheet.create({
     color: ThemeColors.textSecondary,
   },
 });
+
+export const voiceChatBubbleStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  userContainer: {
+    justifyContent: "flex-end",
+  },
+  assistantContainer: {
+    justifyContent: "flex-start",
+  },
+  avatarContainer: {
+    marginRight: 8,
+    alignSelf: "flex-end",
+    marginBottom: 2,
+  },
+  avatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bubble: {
+    maxWidth: "80%",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+  },
+  userBubble: {
+    backgroundColor: ThemeColors.text,
+    borderBottomRightRadius: 4,
+  },
+  aiBubble: {
+    backgroundColor: ThemeColors.surface,
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: ThemeColors.borderLight,
+  },
+  text: {
+    fontFamily: Fonts.brand,
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  userText: {
+    color: ThemeColors.text,
+  },
+  aiText: {
+    color: ThemeColors.text,
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginTop: 4,
+    gap: 4,
+  },
+  time: {
+    fontFamily: Fonts.brand,
+    fontSize: 10,
+  },
+  userTime: {
+    color: ThemeColors.surface,
+  },
+  aiTime: {
+    color: ThemeColors.textMuted,
+  },
+});

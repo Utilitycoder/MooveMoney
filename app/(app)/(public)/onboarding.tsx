@@ -8,7 +8,13 @@ import { onBoardingStyles } from "@/styles/onboarding";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, Pressable, View, ViewToken } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  View,
+  ViewToken,
+  useWindowDimensions,
+} from "react-native";
 import Animated, {
   FadeInDown,
   useAnimatedScrollHandler,
@@ -20,9 +26,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get("window");
-
 export default function OnboardingScreen() {
+  const { width } = useWindowDimensions();
   const router = useRouter();
   const scrollX = useSharedValue(0);
   const insets = useSafeAreaInsets();
@@ -149,9 +154,10 @@ export default function OnboardingScreen() {
           >
             <Typography
               text={isLastSlide ? "Get Started" : "Continue"}
-              size="base"
+              size="lg"
               weight="bold"
               color="surface"
+              lineHeight={1}
             />
             <View style={onBoardingStyles.buttonIconContainer}>
               <Ionicons

@@ -5,12 +5,13 @@ import EmptyChat from "@/components/screens/chat/EmptyChat";
 import TransactionFlowModal from "@/components/screens/chat/TransactionFlowModal";
 import { useTransactionFlow } from "@/hooks/useTransactionFlow";
 import { getChatResponse } from "@/services/chatService";
+import { useAppStore } from "@/stores/appStore";
 import { useChatStore } from "@/stores/chatStore";
 import { useContactsStore } from "@/stores/contactsStore";
 import { chatStyles } from "@/styles/chat";
 import { ChatMessage } from "@/types/chat";
+import { getUserInitials } from "@/utils/userUtils";
 import { LegendList, LegendListRef } from "@legendapp/list";
-import { usePrivy } from "@privy-io/expo";
 import { useRouter } from "expo-router";
 
 import React, { useEffect, useRef } from "react";
@@ -39,7 +40,7 @@ const useGradualAnimation = () => {
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { user } = usePrivy();
+  const { user } = useAppStore();
   const insets = useSafeAreaInsets();
   const legendListRef = useRef<LegendListRef | null>(null);
   const addContact = useContactsStore((state) => state.addContact);
@@ -197,12 +198,32 @@ export default function ChatScreen() {
       console.error("Chat API error:", error);
       setIsWaitingForResponse(false);
 
+      let friendlyErrorMessage =
+        "I'm having trouble connecting right now. Please try again in a moment. 😊";
+
+      if (error instanceof Error) {
+        // Handle common scenarios
+        const msg = error.message;
+        if (msg.includes("429")) {
+          friendlyErrorMessage =
+            "I'm receiving too many requests right now. Please wait a moment and try again.";
+        } else if (msg.includes("401") || msg.includes("403")) {
+          friendlyErrorMessage =
+            "It looks like your session expired. Please refresh the app.";
+        } else if (msg.includes("500") || msg.includes("503")) {
+          friendlyErrorMessage =
+            "Our servers are having a hiccup. Please try again shortly.";
+        } else if (msg.includes("Network request failed")) {
+          friendlyErrorMessage =
+            "Please check your internet connection and try again.";
+        }
+      }
+
       // Show a friendly error message to the user
       const errorMessage: ChatMessage = {
         id: `${Date.now()}-error`,
         role: "assistant",
-        content:
-          "I'm having trouble connecting right now. Please try again in a moment. 😊",
+        content: friendlyErrorMessage,
         timestamp: new Date(),
       };
 
@@ -233,11 +254,7 @@ export default function ChatScreen() {
               <ChatBubble
                 message={item}
                 index={index}
-                userInitials={
-                  (user as any)?.email?.address
-                    ?.substring(0, 2)
-                    .toUpperCase() || "U"
-                }
+                userInitials={getUserInitials(user)}
               />
             )}
             contentContainerStyle={[

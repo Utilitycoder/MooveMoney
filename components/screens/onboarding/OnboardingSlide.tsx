@@ -48,60 +48,58 @@ const OnboardingSlide: React.FC<OnboardingSlideProps> = ({
 
   return (
     <View style={{ ...onboardingSlideStyles.slide, width }}>
-      <Animated.View style={[onboardingSlideStyles.iconWrapper, iconScale]}>
-        <View
-          style={[
-            onboardingSlideStyles.iconGradient,
-            { backgroundColor: item.iconBgColor },
-          ]}
-        >
-          <View style={onboardingSlideStyles.iconInner}>
-            <Ionicons name={item.icon} size={56} color={ThemeColors.text} />
+      <Animated.ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View style={[onboardingSlideStyles.iconWrapper, iconScale]}>
+          <View
+            style={[
+              onboardingSlideStyles.iconGradient,
+              { backgroundColor: item.iconBgColor },
+            ]}
+          >
+            <View style={onboardingSlideStyles.iconInner}>
+              <Ionicons name={item.icon} size={56} color={ThemeColors.text} />
+            </View>
           </View>
-        </View>
-        <View style={onboardingSlideStyles.iconRing} />
-      </Animated.View>
+          <View style={onboardingSlideStyles.iconRing} />
+        </Animated.View>
 
-      <Animated.View style={[onboardingSlideStyles.textContainer, textOpacity]}>
-        {/* <Text style={onboardingSlideStyles.title}>
-          {item.title}
-          {"\n"}
-          <Text style={onboardingSlideStyles.highlightedTitle}>
-            {item.highlightedText}
-          </Text>
-        </Text> */}
+        <Animated.View
+          style={[onboardingSlideStyles.textContainer, textOpacity]}
+        >
+          <Typography
+            text={item.title}
+            size="4xl"
+            weight="bold"
+            color="text"
+            align="center"
+            lineHeight={1.3}
+          />
 
-        <Typography
-          text={item.title}
-          size="4xl"
-          weight="bold"
-          color="text"
-          align="center"
-          lineHeight={1.4}
-          lines={0}
-        />
+          <Typography
+            size="4xl"
+            weight="bold"
+            align="center"
+            color="primaryDark"
+            text={item.highlightedText}
+          />
 
-        <Typography
-          text={item.highlightedText}
-          size="4xl"
-          weight="bold"
-          color="primaryDark"
-          align="center"
-          lines={0}
-        />
-
-        <Typography
-          text={item.description}
-          size="base"
-          weight="regular"
-          color="textSecondary"
-          align="center"
-          lines={0}
-        />
-        {/* <Text style={onboardingSlideStyles.description}>
-          {item.description}
-        </Text> */}
-      </Animated.View>
+          <Typography
+            size="md"
+            align="center"
+            weight="regular"
+            color="textSecondary"
+            text={item.description}
+            style={{ marginTop: 20 }}
+          />
+        </Animated.View>
+      </Animated.ScrollView>
     </View>
   );
 };

@@ -17,7 +17,6 @@ import { useVoiceProcessor } from "./useVoiceProcessing";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-
 const recordingOptions: RecordingOptions = {
   ...RecordingPresets.HIGH_QUALITY,
   isMeteringEnabled: true,
@@ -53,7 +52,6 @@ export const useVoiceChat = ({
 
   // Processor
   const { transcribe, getAIResponse } = useVoiceProcessor({ useMockService });
-
 
   // Internal start recording function
   const beginRecording = useCallback(async () => {
@@ -147,7 +145,7 @@ export const useVoiceChat = ({
           audioBase64: base64Audio,
           isVoiceInput: true,
         };
-        
+
         setMessages((prev) => [...prev, userMessage]);
         setState("responding"); // Indicate AI is preparing response
 
@@ -198,9 +196,38 @@ export const useVoiceChat = ({
         }
       } catch (err) {
         console.error("Processing error:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to process voice message"
-        );
+        let errorMessage = "Failed to process voice message";
+
+        if (err instanceof Error) {
+          try {
+            // Attempt to extract JSON from the error message (e.g. "404 {...}")
+            const jsonMatch = err.message.match(/\{.*\}/);
+
+            if (jsonMatch) {
+              const parsed = JSON.parse(jsonMatch[0]);
+              // Extract meaningful message or fallback
+              errorMessage =
+                parsed.message ||
+                parsed.error?.message ||
+                "Unable to connect to service";
+            } else if (
+              err.message.includes("404") ||
+              err.message.includes("500")
+            ) {
+              errorMessage = "Service temporarily unavailable";
+            } else {
+              // If it's a short message, use it, otherwise generic
+              errorMessage =
+                err.message.length < 50
+                  ? err.message
+                  : "Something went wrong. Please try again.";
+            }
+          } catch {
+            errorMessage = "Unable to connect to service";
+          }
+        }
+
+        setError(errorMessage);
         setState("error");
         if (isInConversation) {
           setState("listening");
@@ -265,7 +292,9 @@ export const useVoiceChat = ({
 
     try {
       // 1. Transcribe (Granular step)
-      const { transcription, base64Audio } = await transcribe(lastAudioUriRef.current);
+      const { transcription, base64Audio } = await transcribe(
+        lastAudioUriRef.current
+      );
 
       // Create and add user message immediately
       const userMessage: VoiceChatMessage = {
@@ -277,7 +306,7 @@ export const useVoiceChat = ({
         audioBase64: base64Audio,
         isVoiceInput: true,
       };
-      
+
       setMessages((prev) => [...prev, userMessage]);
       setState("responding"); // Indicate AI is preparing response
 
@@ -323,9 +352,30 @@ export const useVoiceChat = ({
       }
     } catch (err) {
       console.error("Retry error:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to process voice message"
-      );
+      let errorMessage = "Failed to process voice message";
+
+      if (err instanceof Error) {
+        try {
+          const jsonMatch = err.message.match(/\{.*\}/);
+
+          if (jsonMatch) {
+            errorMessage =
+              "Unable to connect to service, please try again later.";
+          } else if (["404", "500"].includes(err.message)) {
+            errorMessage =
+              "Service temporarily unavailable, please try again later.";
+          } else {
+            errorMessage =
+              err.message.length < 50
+                ? err.message
+                : "Something went wrong. Please try again.";
+          }
+        } catch {
+          errorMessage = "Unable to connect to service";
+        }
+      }
+
+      setError(errorMessage);
       setState("error");
     }
   }, [

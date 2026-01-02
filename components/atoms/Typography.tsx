@@ -96,6 +96,7 @@ const Typography: React.FC<TypographyProps> = ({
     ...(align && { textAlign: align }),
     ...(letterSpacing !== undefined && { letterSpacing }),
     // Permanent fix for text chopping: minor horizontal buffer
+    paddingHorizontal: 1,
     // Android compatibility & consistency
     includeFontPadding: false,
     ...(wrap && { flexShrink: 1 }),
@@ -108,7 +109,7 @@ const Typography: React.FC<TypographyProps> = ({
       numberOfLines={lines !== undefined ? lines : undefined}
       {...props}
     >
-      {text || children}
+      {`${text || children} `}
     </Text>
   );
 };
