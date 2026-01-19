@@ -34,6 +34,14 @@ export class SessionExpiredError extends Error {
   }
 }
 
+// Sanitize error messages from the API to prevent exposing internal details
+function sanitizeApiError(message: string): string {
+  // Log actual error for debugging
+  console.error("API Error (raw):", message);
+  // Return generic user-friendly message
+  return "Something went wrong. Please try again.";
+}
+
 export async function apiFetch<T>(
   input: RequestInfo,
   init?: RequestInit
@@ -50,8 +58,6 @@ export async function apiFetch<T>(
       },
     })
   );
-  
-  
 
   // Read response body once
   const text = await response.text();
@@ -87,28 +93,32 @@ export async function apiFetch<T>(
           ? json.info.message.join(", ")
           : json.info.message;
 
-        throw new Error(message);
+        throw new Error(sanitizeApiError(message));
       }
 
       // Handle case where message might be at root level
       if (json?.message) {
         throw new Error(
-          Array.isArray(json.message) ? json.message.join(", ") : json.message
+          sanitizeApiError(
+            Array.isArray(json.message) ? json.message.join(", ") : json.message
+          )
         );
       }
 
       // If we have error info but no message, use the error field
       if (json?.info?.error) {
-        throw new Error(json.info.error);
+        throw new Error(sanitizeApiError(json.info.error));
       }
 
       // Fallback to statusCode or generic message
       if (json?.info?.statusCode) {
-        throw new Error(`Request failed with status ${json.info.statusCode}`);
+        throw new Error(
+          sanitizeApiError(`Request failed with status ${json.info.statusCode}`)
+        );
       }
 
       // If we parsed JSON but couldn't extract a message, use the text
-      throw new Error(text || "Request failed");
+      throw new Error(sanitizeApiError(text || "Request failed"));
     } catch (error) {
       // If error is already an Error instance, re-throw it
       if (error instanceof Error) {
@@ -122,11 +132,11 @@ export async function apiFetch<T>(
           const message = Array.isArray(parsed.info.message)
             ? parsed.info.message.join(", ")
             : parsed.info.message;
-          throw new Error(message);
+          throw new Error(sanitizeApiError(message));
         }
       } catch {
         // If all parsing fails, use the raw text or a generic message
-        throw new Error(text || "Request failed");
+        throw new Error(sanitizeApiError(text || "Request failed"));
       }
     }
   }

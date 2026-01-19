@@ -3,7 +3,7 @@ import { transactionDetailsStyles } from "@/styles/transactionDetails";
 import { TransactionInfoSectionProps } from "@/types/transaction";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 export const TransactionInfoSection: React.FC<TransactionInfoSectionProps> = ({
   transaction,
@@ -49,7 +49,7 @@ export const TransactionInfoSection: React.FC<TransactionInfoSectionProps> = ({
               <Text style={transactionDetailsStyles.addressText} selectable>
                 {transaction.recipient}
               </Text>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => onCopy(transaction.recipient!, "Address")}
                 style={transactionDetailsStyles.copyButtonSmall}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -59,7 +59,7 @@ export const TransactionInfoSection: React.FC<TransactionInfoSectionProps> = ({
                   size={16}
                   color={ThemeColors.primary}
                 />
-              </TouchableOpacity>
+              </Pressable>
             </View>
           )}
         </View>

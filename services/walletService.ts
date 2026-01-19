@@ -25,7 +25,7 @@ export async function getTransactions(
     data: { transactions: TransactionApiResponse[] };
   }>(`${API_BASE_URL}/m/transactions?limit=25`);
 
-  /* 
+  /*
    * Debugging: slicing to ensure immutability and logging dates to verify API consistency.
    * This handles the user report of fluctuating list content.
    */
@@ -35,7 +35,7 @@ export async function getTransactions(
     .slice() // Create a copy to match useQuery immutability expectations
     .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
     .map((tx) => transformTransaction(tx));
-    
+
   // console.log("Tx Dates:", txs.map(t => t.date)); // Log formatted dates for verification
 
   // Transform API response to UI format
@@ -185,6 +185,30 @@ export async function submitTransaction(
     return {
       success: false,
       message: "Failed to submit transaction. Please try again.",
+    };
+  }
+}
+
+export interface FaucetResponse {
+  success: boolean;
+  message?: string;
+}
+
+export async function getFaucetTokens(): Promise<FaucetResponse> {
+  try {
+    const response = await apiFetch<{
+      status: boolean;
+      data: { success: boolean; message?: string };
+    }>(`${API_BASE_URL}/m/faucet`);
+
+    return {
+      success: response.status && response.data?.success,
+      message: response.data?.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to request tokens. Please try again.",
     };
   }
 }

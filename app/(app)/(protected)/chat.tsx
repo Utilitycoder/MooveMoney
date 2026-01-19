@@ -11,8 +11,6 @@ import { chatStyles } from "@/styles/chat";
 import { ChatMessage } from "@/types/chat";
 import { LegendList, LegendListRef } from "@legendapp/list";
 import { usePrivy } from "@privy-io/expo";
-import { useSignRawHash } from "@privy-io/expo/extended-chains";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 
 import React, { useEffect, useRef } from "react";
@@ -57,9 +55,6 @@ export default function ChatScreen() {
     setConversationHistory,
     setIsWaitingForResponse,
   } = useChatStore();
-  
-
-
 
   // Use reusable transaction flow hook
   const {
@@ -162,11 +157,12 @@ export default function ChatScreen() {
 
     try {
       // Call the real API
-      const response = await getChatResponse(
-        messageContent,
-        conversationHistory.length > 0 ? conversationHistory : undefined,
-        conversationId
-      );
+      const response = await getChatResponse({
+        message: messageContent,
+        conversationHistory:
+          conversationHistory.length > 0 ? conversationHistory : undefined,
+        conversationId,
+      });
 
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),

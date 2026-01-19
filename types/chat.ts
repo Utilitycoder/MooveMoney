@@ -133,6 +133,8 @@ export interface AIResponse {
   conversationId?: string;
   actions?: ChatAction[];
   conversationHistory?: { role: "user" | "assistant"; content: string }[];
+  isVoice?: boolean;
+  audioUrl?: string;
 }
 
 export interface ChatAction {
@@ -147,6 +149,8 @@ export interface ChatApiResponse {
     response: string;
     actions?: ChatAction[];
     conversationHistory?: { role: "user" | "assistant"; content: string }[];
+    isVoice?: boolean;
+    audioUrl?: string;
   };
 }
 

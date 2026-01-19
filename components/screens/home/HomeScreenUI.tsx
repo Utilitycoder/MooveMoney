@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
 import Animated, {
-  interpolate,
   useAnimatedScrollHandler,
-  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,6 +16,7 @@ import BalanceCard from "@/components/screens/home/BalanceCard";
 import TransactionsList from "@/components/screens/home/TransactionsList";
 import UserGreeting from "@/components/screens/home/UserGreeting";
 import { clearAuth } from "@/lib/auth";
+import { getFaucetTokens } from "@/services/walletService";
 import { useAppStore } from "@/stores/appStore";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { homeStyles, transactionsListStyles } from "@/styles/home";
@@ -32,7 +31,9 @@ export default function HomeScreenUI() {
   const scrollY = useSharedValue(0);
   const insets = useSafeAreaInsets();
   const user = useAppStore((state) => state.user);
-  const setOnboardingCompleted = useAppStore((state) => state.setOnboardingCompleted);
+  const setOnboardingCompleted = useAppStore(
+    (state) => state.setOnboardingCompleted
+  );
   const [menuVisible, setMenuVisible] = useState(false);
   const setTransaction = useTransactionStore((state) => state.setTransaction);
 
@@ -43,6 +44,11 @@ export default function HomeScreenUI() {
     } catch (error) {
       // console.log("Logout error:", error);
     }
+  };
+
+  const handleFaucet = async () => {
+    setMenuVisible(false);
+    await getFaucetTokens();
   };
 
   const handleChatNav = (path: "/chat" | "/voice") => {
@@ -67,10 +73,14 @@ export default function HomeScreenUI() {
 
   const menuOptions = [
     {
+      label: "Get Free Tokens",
+      icon: "water-outline" as const,
+      onPress: handleFaucet,
+    },
+    {
       label: "Settings",
       icon: "settings-outline" as const,
-      // onPress: () => console.log("Settings pressed"),
-        onPress: () => setOnboardingCompleted(false),
+      onPress: () => setOnboardingCompleted(false),
     },
     {
       label: "Help & Support",
@@ -91,26 +101,10 @@ export default function HomeScreenUI() {
     },
   });
 
-  // Header background appears on scroll
-  const headerBgStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [0, 60], [0, 1]),
-  }));
-
-  // Header shadow appears on scroll
-  const headerShadowStyle = useAnimatedStyle(() => ({
-    shadowOpacity: interpolate(scrollY.value, [0, 60], [0, 0.08]),
-    elevation: interpolate(scrollY.value, [0, 60], [0, 4]),
-  }));
-
   return (
-    <View style={{...homeStyles.container, paddingBottom: insets.bottom}}>
+    <View style={{ ...homeStyles.container, paddingBottom: insets.bottom }}>
       {/* Fixed Sticky Header Top */}
-      <View
-        style={[
-          homeStyles.stickyHeader,
-          { paddingTop: insets.top + 12 },
-        ]}
-      >
+      <View style={[homeStyles.stickyHeader, { paddingTop: insets.top + 12 }]}>
         <UserGreeting
           username={user?.name}
           onMenuPress={() => setMenuVisible(true)}
@@ -120,7 +114,7 @@ export default function HomeScreenUI() {
       {/* Fixed Content Section */}
       <View style={homeStyles.fixedTopContainer}>
         <BalanceCard walletAddress={user?.walletAddress} />
-        
+
         <View style={[transactionsListStyles.header, { marginBottom: 0 }]}>
           <Typography variant="h4" color="text" text="Recent Activity" />
         </View>

@@ -121,7 +121,7 @@ export const apiResponseToDetails = (
     amount: apiTx.amount,
     recipient: apiTx.receiver,
     network: "MOVE",
-    fee: `~${apiTx.gasFee} MOVE`,
+    fee: +gasFeeNum > 0 ? `~${apiTx.gasFee} MOVE` : "N/A",
     total: `${total} MOVE`,
     type: apiTx.type,
   };

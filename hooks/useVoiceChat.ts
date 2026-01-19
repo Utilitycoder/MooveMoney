@@ -9,6 +9,8 @@ import {
   RecordingOptions,
   RecordingPresets,
   setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
   useAudioRecorder,
   useAudioRecorderState,
 } from "expo-audio";
@@ -17,6 +19,11 @@ import { useVoiceProcessor } from "./useVoiceProcessing";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+// Sanitize error messages for user display
+const sanitizeErrorMessage = (err: unknown): string => {
+  console.error("Voice chat error:", err);
+  return "Something went wrong. Please try again.";
+};
 
 const recordingOptions: RecordingOptions = {
   ...RecordingPresets.HIGH_QUALITY,
@@ -25,7 +32,7 @@ const recordingOptions: RecordingOptions = {
 
 export const useVoiceChat = ({
   onTransactionDetected,
-  useMockService = true,
+  useMockService = false,
 }: UseVoiceChatProps = {}): UseVoiceChatReturn => {
   // State
   const [state, setState] = useState<VoiceChatState>("idle");
@@ -33,6 +40,12 @@ export const useVoiceChat = ({
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [isInConversation, setIsInConversation] = useState(false);
   const [messages, setMessages] = useState<VoiceChatMessage[]>([]);
+
+  // Audio Playback
+  const [responseAudioUrl, setResponseAudioUrl] = useState<string | null>(null);
+  const player = useAudioPlayer(responseAudioUrl);
+  const playerStatus = useAudioPlayerStatus(player);
+  const onAudioCompleteRef = useRef<(() => void) | null>(null);
 
   // Refs
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -54,6 +67,20 @@ export const useVoiceChat = ({
   // Processor
   const { transcribe, getAIResponse } = useVoiceProcessor({ useMockService });
 
+  // Play audio and call completion callback when done
+  useEffect(() => {
+    if (responseAudioUrl && player) {
+      player.play();
+    }
+  }, [responseAudioUrl, player]);
+
+  // Listen for playback completion
+  useEffect(() => {
+    if (playerStatus.didJustFinish && onAudioCompleteRef.current) {
+      onAudioCompleteRef.current();
+      onAudioCompleteRef.current = null;
+    }
+  }, [playerStatus.didJustFinish]);
 
   // Internal start recording function
   const beginRecording = useCallback(async () => {
@@ -137,6 +164,7 @@ export const useVoiceChat = ({
         // 1. Transcribe (Granular step)
         const { transcription, base64Audio } = await transcribe(uri);
 
+        // console.log("transcription", transcription);
         // Create and add user message immediately
         const userMessage: VoiceChatMessage = {
           id: Date.now().toString(),
@@ -147,7 +175,7 @@ export const useVoiceChat = ({
           audioBase64: base64Audio,
           isVoiceInput: true,
         };
-        
+
         setMessages((prev) => [...prev, userMessage]);
         setState("responding"); // Indicate AI is preparing response
 
@@ -164,6 +192,14 @@ export const useVoiceChat = ({
 
         setMessages((prev) => [...prev, aiMessage]);
 
+        // Play audio if available and wait for completion
+        if (aiResponse.audioUrl) {
+          await new Promise<void>((resolve) => {
+            onAudioCompleteRef.current = resolve;
+            setResponseAudioUrl(aiResponse.audioUrl!);
+          });
+        }
+
         // Check for transaction intent
         if (
           aiResponse.isSendIntent &&
@@ -171,7 +207,6 @@ export const useVoiceChat = ({
           onTransactionDetected
         ) {
           onTransactionDetected(aiResponse.transaction);
-          // End conversation when transaction is detected
           shouldContinueConversation.current = false;
           setIsInConversation(false);
           setState("idle");
@@ -188,19 +223,15 @@ export const useVoiceChat = ({
         if (shouldContinueConversation.current && isInConversation) {
           setState("listening");
           // Small delay before starting next recording
-          await new Promise((resolve) => setTimeout(resolve, 800));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
 
-          if (shouldContinueConversation.current) {
-            await beginRecording();
-          }
+          if (shouldContinueConversation.current) await beginRecording();
         } else {
           setState("idle");
         }
       } catch (err) {
         console.error("Processing error:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to process voice message"
-        );
+        setError(sanitizeErrorMessage(err));
         setState("error");
         if (isInConversation) {
           setState("listening");
@@ -234,9 +265,8 @@ export const useVoiceChat = ({
     stopRecordingAnimation();
 
     try {
-      if (audioRecorderState.isRecording) {
-        await audioRecorder.stop();
-      }
+      if (audioRecorderState.isRecording) await audioRecorder.stop();
+
       await setAudioModeAsync({ allowsRecording: false });
     } catch (err) {
       console.warn("Error ending conversation:", err);
@@ -265,7 +295,9 @@ export const useVoiceChat = ({
 
     try {
       // 1. Transcribe (Granular step)
-      const { transcription, base64Audio } = await transcribe(lastAudioUriRef.current);
+      const { transcription, base64Audio } = await transcribe(
+        lastAudioUriRef.current
+      );
 
       // Create and add user message immediately
       const userMessage: VoiceChatMessage = {
@@ -277,7 +309,7 @@ export const useVoiceChat = ({
         audioBase64: base64Audio,
         isVoiceInput: true,
       };
-      
+
       setMessages((prev) => [...prev, userMessage]);
       setState("responding"); // Indicate AI is preparing response
 
@@ -290,9 +322,18 @@ export const useVoiceChat = ({
         role: "assistant",
         content: aiResponse.content,
         timestamp: new Date(),
+        // Add new fields to message logic if needed, but for now we play audio
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      // Play audio if available and wait for completion
+      if (aiResponse.audioUrl) {
+        await new Promise<void>((resolve) => {
+          onAudioCompleteRef.current = resolve;
+          setResponseAudioUrl(aiResponse.audioUrl!);
+        });
+      }
 
       if (
         aiResponse.isSendIntent &&
@@ -314,7 +355,7 @@ export const useVoiceChat = ({
       // Continue conversation if in mode
       if (shouldContinueConversation.current && isInConversation) {
         setState("listening");
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (shouldContinueConversation.current) {
           await beginRecording();
         }
@@ -323,9 +364,7 @@ export const useVoiceChat = ({
       }
     } catch (err) {
       console.error("Retry error:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to process voice message"
-      );
+      setError(sanitizeErrorMessage(err));
       setState("error");
     }
   }, [

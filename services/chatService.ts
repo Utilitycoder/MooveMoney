@@ -1,19 +1,26 @@
 import { env } from "@/constants";
 import { apiFetch } from "@/lib/api";
 import { AIResponse, ChatApiResponse, TransactionDetails } from "@/types/chat";
+import { LegendList } from "@legendapp/list";
 
 const API_BASE_URL = `${env.apiUrl}/api`;
 
-
+interface GetChatResponseProps {
+  message: string;
+  isVoice?: boolean;
+  conversationId?: string;
+  conversationHistory?: { role: "user" | "assistant"; content: string }[];
+}
 
 /**
  * Send transcribed text to chat API and get AI response
  */
-export async function getChatResponse(
-  message: string,
-  conversationHistory?: { role: "user" | "assistant"; content: string }[],
-  conversationId?: string
-): Promise<AIResponse> {
+export async function getChatResponse({
+  message,
+  isVoice,
+  conversationId,
+  conversationHistory,
+}: GetChatResponseProps): Promise<AIResponse> {
   try {
     // Build messages array for the request
     // Filter out any messages with empty content to avoid API errors
@@ -21,14 +28,16 @@ export async function getChatResponse(
       ? [...conversationHistory, { role: "user" as const, content: message }]
       : [{ role: "user" as const, content: message }];
 
-    const messages = baseMessages.filter((msg) => msg.content && msg.content.trim() !== "");
+    const messages = baseMessages.filter(
+      (msg) => msg.content && msg.content.trim() !== ""
+    );
 
     // Build request body - include conversationId if provided
     const requestBody = {
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      ...(isVoice ? { isVoice } : {}),
       ...(conversationId ? { conversationId } : {}),
     };
-
 
     // Use apiFetch for authenticated requests
     const response = await apiFetch<ChatApiResponse>(`${API_BASE_URL}/m-chat`, {
@@ -42,10 +51,10 @@ export async function getChatResponse(
       throw new Error(errorMessage);
     }
 
-    // console.log(response)
-
     // Extract response content
     const content = response.data.response || "";
+
+    // console.log(response?.data);
 
     // Parse actions to detect transaction intents and end conversation
     let isSendIntent = false;
@@ -127,6 +136,8 @@ export async function getChatResponse(
       actions: response.data.actions,
       conversationHistory: updatedHistory,
       conversationId: response.data.conversationId,
+      isVoice: response.data.isVoice,
+      audioUrl: response.data.audioUrl,
     };
   } catch (error) {
     throw error;
@@ -135,19 +146,20 @@ export async function getChatResponse(
 
 export async function getAudioText(base64String: string): Promise<string> {
   try {
-
-     // Clean base64 string (remove newlines if any)
+    // Clean base64 string (remove newlines if any)
     const cleanBase64 = base64String.replace(/[\r\n]+/g, "");
 
     // m/transcribe
-    const result = await apiFetch<{data: {success: true, text: string}, status: true}>(`${API_BASE_URL}/m/att`, {
+    const result = await apiFetch<{
+      data: { success: true; text: string };
+      status: true;
+    }>(`${API_BASE_URL}/m/att`, {
       method: "POST",
       body: JSON.stringify({ file: cleanBase64 }),
     });
 
     return result.data?.text || "";
   } catch (error) {
-
     // console.log(JSON.stringify(error))
     console.error("Transcription error:", (error as Error)?.message);
     throw error;

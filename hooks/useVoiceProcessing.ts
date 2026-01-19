@@ -1,7 +1,7 @@
 import { getAudioText, getChatResponse } from "@/services/chatService";
 import { mockService } from "@/services/voiceChatService";
 import { VoiceChatMessage } from "@/types/voiceChat";
-import { File as ExpoFile } from "expo-file-system";
+import { File } from "expo-file-system/next";
 import { useCallback } from "react";
 
 interface UseVoiceProcessorProps {
@@ -9,13 +9,16 @@ interface UseVoiceProcessorProps {
 }
 
 export const useVoiceProcessor = ({
-  useMockService = true,
+  useMockService = false,
 }: UseVoiceProcessorProps) => {
   const transcribe = useCallback(
-    async (uri: string): Promise<{ transcription: string; base64Audio?: string }> => {
+    async (
+      uri: string
+    ): Promise<{ transcription: string; base64Audio?: string }> => {
       let base64Audio = undefined;
       try {
-        const file = new ExpoFile(uri);
+        // Use the latest File class API from expo-file-system
+        const file = new File(uri);
         base64Audio = await file.base64();
       } catch (readError) {
         console.error("Failed to read audio file:", readError);
@@ -40,10 +43,14 @@ export const useVoiceProcessor = ({
       if (useMockService) {
         return await mockService.getChatResponse(text);
       } else {
-        return await getChatResponse(
-          text,
-          currentMessages.map((m) => ({ role: m.role, content: m.content }))
-        );
+        return await getChatResponse({
+          message: text,
+          conversationHistory: currentMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          isVoice: true,
+        });
       }
     },
     [useMockService]

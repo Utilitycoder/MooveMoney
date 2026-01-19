@@ -561,3 +561,131 @@ export const voiceChatInputStyles = StyleSheet.create({
     color: ThemeColors.textSecondary,
   },
 });
+
+export const voiceChatBubbleStyles = StyleSheet.create({
+  container: {
+    marginBottom: 12,
+    flexDirection: "row",
+    paddingHorizontal: 10,
+  },
+  userContainer: {
+    justifyContent: "flex-end",
+  },
+  assistantContainer: {
+    justifyContent: "flex-start",
+  },
+  avatarContainer: {
+    marginRight: 8,
+    marginBottom: 2,
+    alignSelf: "flex-end",
+  },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarUser: {
+    width: 28,
+    height: 28,
+    marginLeft: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    alignSelf: "flex-end",
+    justifyContent: "center",
+    backgroundColor: ThemeColors.text,
+  },
+  bubble: {
+    maxWidth: "80%",
+    borderRadius: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  userBubble: {
+    backgroundColor: ThemeColors.primary,
+    borderBottomRightRadius: 4,
+  },
+  aiBubble: {
+    backgroundColor: ThemeColors.surface,
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: ThemeColors.borderLight,
+  },
+  text: {
+    fontFamily: Fonts.brand,
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  userText: {
+    color: ThemeColors.text,
+  },
+  aiText: {
+    color: ThemeColors.text,
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginTop: 4,
+    gap: 4,
+  },
+  time: {
+    fontFamily: Fonts.brand,
+    fontSize: 10,
+  },
+  userTime: {
+    color: "rgba(26,26,26,0.5)",
+  },
+  aiTime: {
+    color: ThemeColors.textMuted,
+  },
+});
+
+export const voiceChatHeaderStyles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: ThemeColors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: ThemeColors.borderLight,
+  },
+  headerButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: ThemeColors.background,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerButtonPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.95 }],
+  },
+  headerButtonPlaceholder: {
+    width: 40,
+  },
+  centerContent: {
+    flex: 1,
+    alignItems: "center",
+  },
+  titleRow: {
+    gap: 8,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  statusDot: {
+    marginTop: 2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  title: {
+    fontFamily: Fonts.brandBold,
+    fontSize: 16,
+    color: ThemeColors.text,
+  },
+});

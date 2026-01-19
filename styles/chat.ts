@@ -112,11 +112,11 @@ export const emptyChatStyles = StyleSheet.create({
 
 export const chatBubbleStyles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginBottom: 16,
-    paddingHorizontal: 16,
     gap: 10,
+    marginBottom: 16,
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    alignItems: "flex-end",
   },
   containerUser: {
     justifyContent: "flex-end",
@@ -125,17 +125,17 @@ export const chatBubbleStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: ThemeColors.primary,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: ThemeColors.primary,
   },
   avatarUser: {
     width: 28,
     height: 28,
     borderRadius: 8,
-    backgroundColor: ThemeColors.text,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: ThemeColors.text,
   },
   bubble: {
     maxWidth: "75%",

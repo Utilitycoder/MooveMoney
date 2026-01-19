@@ -91,15 +91,17 @@ const TransactionItem = ({
   </Pressable>
 );
 
-
-
 const TransactionsList: React.FC<TransactionsListProps> = ({
   delay = 200,
   walletAddress,
   onTransactionPress,
   showHeader = true,
 }) => {
-  const { data: txData, isLoading, isFetching } = useTransactions(walletAddress);
+  const {
+    data: txData,
+    isLoading,
+    isFetching,
+  } = useTransactions(walletAddress);
 
   const showSkeleton = isLoading || (isFetching && !txData);
 
@@ -131,16 +133,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
           ListEmptyComponent={<TransactionListEmptyState />}
           scrollEnabled={false}
           estimatedItemSize={76}
-          style={{ width: "100%" }}
+          style={{ width: "100%", flex: 1 }}
           showsVerticalScrollIndicator={false}
         />
       )}
     </Animated.View>
   );
 };
-
-
-
-
 
 export default TransactionsList;
